@@ -204,25 +204,70 @@ input#password {
 .signup-prompt a { color: #6366F1; font-weight: 600; text-decoration: none; }
 .signup-prompt a:hover { text-decoration: underline; }
 
-/* Add these NEW rules for the branding text */
+/* Branding Section */
 .login-branding {
-    display: flex;
-    flex-direction: column; /* Stacks the words vertically */
-    gap: 15px;
+    display: grid;
+    /* Creates two columns: one for the letter, one for the word */
+    grid-template-columns: auto 1fr; 
+    /* Aligns the text on their baseline */
+    align-items: baseline;
+    /* Sets the gap between rows and columns */
+    gap: 15px 15px;
+}
+
+.login-branding strong {
+    font-size: 60px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    /* Aligns the large letter to the right of its column */
+    text-align: right;
 }
 
 .login-branding span {
     font-size: 28px;
     font-weight: 500;
     color: rgba(0, 0, 0, 0.4);
-    line-height: 1.2;
 }
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+    /* Make the header part of the normal page flow */
+    .page-header {
+        position: relative;
+        padding: 20px;
+        justify-content: center; /* Center the logo */
+    }
 
-.login-branding strong {
-    font-size: 60px;
-    font-weight: 800;
-    color: rgba(255, 255, 255, 0.9); /* White text with some transparency */
-    text-shadow: 0 2px 15px rgba(0,0,0,0.1); /* Adds a subtle shadow */
-    margin-right: 8px;
-    display: inline-block;
+    /* Hide the top-right buttons on mobile to save space */
+    .header-buttons {
+        display: none;
+    }
+
+    /* Stack the branding and login card vertically */
+    .login-wrapper {
+        flex-direction: column;
+        gap: 30px;
+        justify-content: flex-start;
+        padding: 20px; /* Use consistent padding */
+        height: auto; /* Allow height to be determined by content */
+    }
+
+    /* Adjust branding text for smaller screens */
+    .login-branding {
+        gap: 10px;
+        align-items: center; /* Center the branding text */
+    }
+    .login-branding span {
+        font-size: 20px;
+    }
+    .login-branding strong {
+        font-size: 42px;
+    }
+
+    /* Ensure the login card fits well */
+    .login-card {
+        padding: 30px;
+        width: 100%;
+        max-width: 400px; /* Ensure it doesn't get too wide on small tablets */
+    }
 }

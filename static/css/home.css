@@ -82,19 +82,27 @@ body {
 
 /* Features Bar */
 .features-bar {
-    display: flex;
+    display: flex; /* Changed from grid to flex for better control */
     justify-content: space-around;
     background-color: #FFFFFF;
     border-radius: 16px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-    padding: 25px;
-    margin: -60px 40px 0 40px; /* Pulls the bar up over the banner */
-    position: relative; /* Ensures it sits above the banner */
+    padding: 25px 15px; /* Adjusted padding */
+    margin: -60px 40px 0 40px;
+    position: relative;
     z-index: 2;
+    gap: 10px; /* Adds a small gap between items */
 }
 
+/* This targets the <a> tag */
+.feature-item-link {
+    flex: 1; /* This is the key: makes each item take up equal space */
+    text-align: center; /* Centers the icon and text inside */
+    text-decoration: none;
+}
+
+/* This targets the inner div */
 .feature-item {
-    text-align: center;
     font-weight: 600;
     font-size: 14px;
     color: #374151;
@@ -103,13 +111,9 @@ body {
 
 .feature-item i {
     font-size: 20px;
-    margin-bottom: 10px;
+    margin-bottom: 12px; /* Increased space between icon and text */
     display: block;
     color: #4F46E5;
-}
-
-.feature-item-link {
-    text-decoration: none;
 }
 /* Recommendations Section */
 .recommendations {
@@ -259,4 +263,22 @@ main.main-content {
     color: #6B7280;
     margin: 0;
     line-height: 1.6;
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+    .dashboard-header, .recommendations, .welcome-banner {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    .features-bar {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+    .welcome-text h1 {
+        font-size: 24px;
+    }
+    .welcome-text h2 {
+        font-size: 36px;
+    }
 }

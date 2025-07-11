@@ -124,3 +124,44 @@ body {
 .page-content {
     padding: 40px;
 }
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+    /* Make the sidebar slightly narrower on tablets/phones */
+    .sidebar {
+        width: 70px;
+    }
+
+    /* Hide the text and expander button to keep it icon-only */
+    .app-container.sidebar-expanded .sidebar {
+        width: 70px;
+    }
+    .app-container.sidebar-expanded .link-text,
+    .app-container.sidebar-expanded .logo-text,
+    #sidebar-expander {
+        display: none;
+    }
+    .app-container.sidebar-expanded .sidebar-logo,
+    .app-container.sidebar-expanded .nav-link {
+        justify-content: center;
+        padding-left: 0;
+    }
+
+    /* Reduce padding on the main content and header */
+    .main-header {
+        padding: 15px 20px;
+    }
+    .page-content {
+        padding: 20px;
+    }
+
+    /* Adjust profile page for mobile */
+    .profile-wrapper {
+        flex-direction: column; /* Stack sidebar and main content */
+        margin-top: 0;
+        padding: 0;
+    }
+    .profile-sidebar {
+        max-width: 100%;
+    }
+}

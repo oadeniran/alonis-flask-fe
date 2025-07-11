@@ -190,3 +190,40 @@ body {
     border-color: #4F46E5;
     color: #4F46E5;
 }
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+    .main-content {
+        padding: 24px;
+    }
+    .hero-section {
+        flex-direction: column; /* Stack text and image */
+        text-align: center;
+        gap: 40px;
+        margin-top: 40px;
+    }
+    .hero-image {
+        display: none; /* Hide phone image on mobile to save space */
+    }
+    .hero-title-meaning {
+        justify-content: center;
+        gap: 10px 15px;
+    }
+    .hero-title-meaning span {
+        font-size: 20px;
+    }
+    .hero-title-meaning strong {
+        font-size: 42px;
+    }
+    .acronym-grid {
+        grid-template-columns: 1fr 1fr; /* 2 columns on mobile */
+    }
+    .key-features-grid {
+        grid-template-columns: 1fr; /* 1 column on mobile */
+    }
+    .hero-action-buttons {
+        flex-direction: column; /* Stack the main buttons */
+        align-items: stretch; /* Make buttons full width */
+        gap: 12px;
+    }
+}

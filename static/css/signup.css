@@ -268,3 +268,13 @@ textarea {
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 600px) {
+    .signup-container {
+        padding: 20px;
+    }
+    .signup-card {
+        padding: 30px;
+    }
+}
