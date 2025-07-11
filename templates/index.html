@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alonis - Your Personalized AI Companion</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_index.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <main class="main-content">
+            <header class="main-header">
+                <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
+                <a href="{{ url_for('signup') }}" class="btn btn-primary">Sign Up</a>
+            </header>
+
+            <section class="hero-section">
+                <div class="hero-text">
+                    <div class="hero-title-meaning">
+                        <span><strong>A</strong>wareness</span>
+                        <span><strong>L</strong>ife</span>
+                        <span><strong>O</strong>bservation</span>
+                        <span><strong>N</strong>urturing</span>
+                        <span><strong>I</strong>ntuition</span>
+                        <span><strong>S</strong>elfhood</span>
+                    </div>
+                    
+                    <h2 class="section-title">A complete system for personal insight</h2>
+                    <div class="features-grid key-features-grid">
+                        <div class="key-feature-card"><i class="fas fa-user-check"></i>Personality Test</div>
+                        <div class="key-feature-card"><i class="fas fa-brain"></i>MindLens</div>
+                        <div class="key-feature-card"><i class="fas fa-comments"></i>AI Chat</div>
+                        <div class="key-feature-card"><i class="fas fa-star"></i>Personalized Recommendations</div>
+                        <div class="key-feature-card"><i class="fas fa-clipboard-list"></i>Notes & Goals</div>
+                    </div>
+
+                </div>
+
+                 <div class="hero-action-buttons">
+                        <a href="" class="btn btn-hero-primary">Try Alonis Now</a>
+                        <a href="{{ url_for('signup') }}" class="btn btn-hero-secondary">Signup to access all features</a>
+                    </div>
+
+                <div class="hero-image">
+                    <img src="{{ url_for('static', filename='images/phone-mockup.jpg') }}" alt="Alonis App on a Phone">
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

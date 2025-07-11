@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block title %}Assessment Report - Alonis{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/report.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="report-content-card">
+        <div class="card-header">
+            <h3>Assessment Report</h3>
+            <div class="action-buttons">
+                <a href="#"><i class="fas fa-print"></i> Print</a>
+                <a href="#"><i class="fas fa-download"></i> Download</a>
+            </div>
+        </div>
+        <div class="card-body">
+            {{ report_content|safe }}
+        </div>
+    </div>
+{% endblock %}

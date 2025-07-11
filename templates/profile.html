@@ -1,0 +1,111 @@
+{% extends "layout.html" %}
+
+{% block title %}Your Profile - Alonis{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="profile-wrapper">
+        <aside class="profile-sidebar">
+            <h3>Your Profile</h3>
+            <form id="profile-form" action="{{ url_for('profile_page') }}" method="POST">
+                {% for field in user_details %}
+                <div class="form-group">
+                    <label for="{{ field.key }}">{{ field.label }}</label>
+                    
+                    {% if field.editable %}
+                        <input type="text" id="{{ field.key }}" name="{{ field.key }}" value="{{ field.value }}">
+                    {% else %}
+                        <input type="text" id="{{ field.key }}" name="{{ field.key }}" value="{{ field.value }}" readonly class="readonly-input">
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <button type="submit" class="btn-save" id="save-button">
+                    <span class="btn-text">Save Changes</span>
+                    <span class="btn-spinner"></span>
+                </button>
+            </form>
+        </aside>
+
+        <main class="profile-main">
+            <nav class="tab-nav">
+                <button class="tab-link active" data-tab="assessments">Assessments</button>
+                <button class="tab-link" data-tab="talks">Talks</button>
+            </nav>
+
+            <div id="assessments" class="tab-content active">
+                {% for item in assessments %}
+                <div class="history-item">
+                    <div class="item-info">
+                        <strong>{{ item.session_type.replace("assessment_", "").replace("_", " ").title() }} Assessment</strong>
+                        <span>Taken on: {{ item.date }}</span>
+                    </div>
+                    <div class="item-actions">
+                        {% if item.has_report %}
+                            <a href="{{ url_for('report_page', session_id=item.session_id) }}" class="btn-action">View Report</a>
+                        {% endif %}
+                        <a href="{{ url_for('view_chat_page', session_id=item.session_id) }}" class="btn-action secondary">View Chat</a>
+                    </div>
+                </div>
+                    {% else %}
+                    <div class="empty-state-prompt">
+                        <i class="fas fa-lightbulb"></i>
+                        <h4>Ready to discover yourself?</h4>
+                        <p>Your assessment history will appear here. Let's begin by selecting a test from the menu!</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div id="talks" class="tab-content">
+                {% for item in talks %}
+                <div class="history-item">
+                    <div class="item-info">
+                        <strong>{{ item.session_type.replace("_"," ").title() }}</strong>
+                        <span>Session on: {{ item.date }}</span>
+                    </div>
+                    <div class="item-actions">
+                        <a href="{{ url_for('view_chat_page', session_id=item.session_id) }}" class="btn-action secondary">View Chat</a>
+                    </div>
+                </div>
+                    {% else %}
+                        <div class="empty-state-prompt">
+                            <i class="fas fa-comments"></i>
+                            <h4>Ready when you are!</h4>
+                            <p>Your past conversations with me will be saved here. Start a new chat from the menu to begin.</p>
+                        </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Tab Switching Logic ---
+            const tabLinks = document.querySelectorAll('.tab-link');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    const tabId = link.dataset.tab;
+                    tabLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    tabContents.forEach(content => {
+                        content.classList.toggle('active', content.id === tabId);
+                    });
+                });
+            });
+
+            // --- Save Button Loading State Logic ---
+            const profileForm = document.getElementById('profile-form');
+            const saveButton = document.getElementById('save-button');
+
+            profileForm.addEventListener('submit', () => {
+                saveButton.classList.add('loading');
+                saveButton.disabled = true;
+            });
+        });
+    </script>
+{% endblock %}

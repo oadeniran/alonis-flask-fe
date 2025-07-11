@@ -1,0 +1,365 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ title }} - Notes & Goals - Alonis{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/notes.css') }}">
+{% endblock %}
+
+{% block content %}
+   <div class="notes-wrapper">
+        <header class="notes-header">
+            <h1>Notes & Goals</h1>
+            <button id="add-note-btn" class="btn-primary">
+                <i class="fas fa-plus"></i> Add Note
+            </button>
+        </header>
+
+        <main class="notes-grid">
+            {% for note in notes %}
+            <div class="note-card" data-note-id="{{ note._id }}">
+                <div class="card-header">
+                    {% if note.is_goal %}
+                    <div class="goal-indicator {% if note.is_achieved %}achieved{% endif %}">
+                        <i class="fas fa-bullseye"></i> Goal
+                        {% if note.is_achieved %}<i class="fas fa-check-circle"></i>{% endif %}
+                    </div>
+                    {% endif %}
+                    <div class="menu-container">
+                        <button class="menu-btn"><i class="fas fa-ellipsis-v"></i></button>
+                        <div class="dropdown-menu">
+                            {% if note.is_goal and not note.is_achieved %}<a href="#" class="dropdown-item achieve-btn">Mark as Achieved</a>{% endif %}
+                            <a href="#" class="dropdown-item delete-btn">Delete</a>
+                        </div>
+                    </div>
+                </div>
+                <h3>{{ note.title }}</h3>
+                <p>{{ note.truncated_details }}</p>
+                <div class="card-footer">
+                    <span>Created: {{ note.date }}</span>
+                    {% if note.details|length > 100 %}
+                    <button class="view-more-btn" 
+                        data-title="{{ note.title }}" 
+                        data-details="{{ note.details }}" 
+                        data-is-goal="{{ note.is_goal }}" 
+                        data-is-achieved="{{ note.is_achieved }}"
+                        data-created-at="{{ note.date }}">
+                        View More <i class="fas fa-expand-alt"></i>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <p class="no-notes">You have no notes yet. Click "Add Note" to get started!</p>
+            {% endfor %}
+        </main>
+
+        {% if total_pages > 1 %}
+        <nav class="pagination">
+            {% if current_page > 1 %}
+            <a href="{{ url_for('notes_page', page=current_page - 1) }}" class="page-link">&laquo; Previous</a>
+            {% endif %}
+            <span class="page-info">Page {{ current_page }} of {{ total_pages }}</span>
+            {% if current_page < total_pages %}
+            <a href="{{ url_for('notes_page', page=current_page + 1) }}" class="page-link">Next &raquo;</a>
+            {% endif %}
+        </nav>
+        {% endif %}
+    </div>
+
+    <div id="note-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2>New Note</h2>
+                <button id="close-modal-btn" class="close-btn">&times;</button>
+            </header>
+             <form id="add-note-form" action="{{ url_for('notes_page') }}" method="POST">
+                <div class="form-body">
+                    <div class="form-group">
+                        <label for="title">Title</label>
+                        <input type="text" id="title" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="details">Details</label>
+                        <textarea id="details" name="details" rows="10" required></textarea>
+                    </div>
+                </div>
+                <div class="form-footer">
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="is_goal" name="is_goal" value="true">
+                        <label for="is_goal">Is this a goal?</label>
+                    </div>
+                    <button type="submit" class="btn-primary">Save Note</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="view-note-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2 id="view-modal-title"></h2>
+                <button id="close-view-modal-btn" class="close-btn">&times;</button>
+            </header>
+            <div class="view-modal-body">
+                <div class="view-modal-meta">
+                    <div id="view-modal-indicators"></div>
+                    <span id="view-modal-date"></span>
+                </div>
+                <p id="view-modal-details"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- 1. GET ALL NECESSARY ELEMENTS ---
+            const addNoteBtn = document.getElementById('add-note-btn');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const noteModal = document.getElementById('note-modal');
+            const addNoteForm = document.getElementById('add-note-form');
+            const notesGrid = document.querySelector('.notes-grid');
+            const viewNoteModal = document.getElementById('view-note-modal');
+            const closeViewModalBtn = document.getElementById('close-view-modal-btn');
+
+            // --- 2. DEFINE HELPER FUNCTION TO ADD NOTES TO THE UI ---
+            const addNoteToGrid = (note, tempId, position = 'prepend') => {
+                const noNotesPrompt = notesGrid.querySelector('.no-notes');
+                if (noNotesPrompt) noNotesPrompt.remove();
+
+                const card = document.createElement('div');
+                card.className = 'note-card';
+                if (tempId) card.id = tempId;
+                card.dataset.noteId = note._id || '';
+
+                const cardHTML = `
+                    <div class="card-header">
+                        ${note.is_goal ? `<div class="goal-indicator ${note.is_achieved ? 'achieved' : ''}">
+                                                <i class="fas fa-bullseye"></i> Goal 
+                                                ${note.is_achieved ? '<i class="fas fa-check-circle"></i>' : ''}
+                                            </div>` : ''}
+                        <div class="menu-container">
+                            <button class="menu-btn"><i class="fas fa-ellipsis-v"></i></button>
+                            <div class="dropdown-menu">
+                                ${(note.is_goal && !note.is_achieved) ? '<a href="#" class="dropdown-item achieve-btn">Mark as Achieved</a>' : ''}
+                                <a href="#" class="dropdown-item delete-btn">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                    <h3>${note.title}</h3>
+                    <p>${note.truncated_details || note.details}</p>
+                    <div class="card-footer">
+                        <span>${note.date ? `Created: ${note.date}` : 'Creating...'}</span>
+                        ${(note.details && note.details.length > 100) ? `<button class="view-more-btn"
+                                    data-title="${note.title}" data-details="${note.details}"
+                                    data-is-goal="${note.is_goal}" data-is-achieved="${note.is_achieved}"
+                                    data-created-at="${note.date? note.date : 'Creating...'}">
+                                    View More <i class="fas fa-expand-alt"></i></button>` : ''}
+                    </div>
+                `;
+                card.innerHTML = cardHTML;
+
+                if (position === 'prepend') notesGrid.prepend(card);
+                else notesGrid.appendChild(card);
+            };
+
+            // --- 3. MODAL VISIBILITY LOGIC ---
+            if (addNoteBtn) addNoteBtn.addEventListener('click', () => { noteModal.style.display = 'flex'; });
+            if (closeModalBtn) closeModalBtn.addEventListener('click', () => { noteModal.style.display = 'none'; });
+            if (noteModal) window.addEventListener('click', (e) => { if (e.target === noteModal) noteModal.style.display = 'none'; });
+
+            if (closeViewModalBtn) closeViewModalBtn.addEventListener('click', () => { viewNoteModal.style.display = 'none'; });
+            if (viewNoteModal) window.addEventListener('click', (e) => { if (e.target === viewNoteModal) viewNoteModal.style.display = 'none'; });
+
+
+            // --- 4. LOGIC FOR ADDING A NEW NOTE ---
+            if (addNoteForm) {
+                addNoteForm.addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    const tempId = 'note-' + Date.now();
+                    const formData = new FormData(addNoteForm);
+                    const noteData = {
+                        title: formData.get('title'),
+                        details: formData.get('details'),
+                        is_goal: formData.get('is_goal') === 'true'
+                    };
+
+                    addNoteToGrid(noteData, tempId);
+                    noteModal.style.display = 'none';
+                    addNoteForm.reset();
+
+                    fetch("{{ url_for('notes_page') }}", {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(noteData)
+                    })
+                    .then(response => response.ok ? response.json() : Promise.reject('Failed to save.'))
+                    .then(data => {
+                        if (data.status === 'success' && data.note) {
+                            const savedCard = document.getElementById(tempId);
+                            if (savedCard) {
+                                savedCard.dataset.noteId = data.note._id;
+
+                                const viewMoreBtn = savedCard.querySelector('.view-more-btn');
+                                if (viewMoreBtn) {
+                                    viewMoreBtn.dataset.createdAt = data.note.date;
+                                    viewMoreBtn.dataset.isAchieved = data.note.is_achieved;
+                                }
+                                const footerSpan = savedCard.querySelector('.card-footer span');
+                                if (footerSpan) footerSpan.textContent = `Created: ${data.note.date}`;
+                                
+                                const notesPerPage = 12;
+                                const allNoteCards = notesGrid.querySelectorAll('.note-card');
+                                if (allNoteCards.length > notesPerPage) {
+                                    allNoteCards[allNoteCards.length - 1].remove();
+                                }
+                            }
+                        } else { throw new Error(data.message || 'Failed to save note.'); }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        const failedNoteCard = document.getElementById(tempId);
+                        if (failedNoteCard) failedNoteCard.remove();
+                        alert('Error: Could not save your note.');
+                    });
+                });
+            }
+            // --- 5. Logic to Handle DELETING a note (using Event Delegation) ---
+            // This single listener on the grid works for all current and future notes.
+            notesGrid.addEventListener('click', (event) => {
+                // --- New Logic for "View More" Modal ---
+                const target = event.target;
+                const deleteButton = target.closest('.delete-btn');
+                if (deleteButton) {
+                    event.preventDefault();
+                    const card = deleteButton.closest('.note-card');
+                    const noteId = card.dataset.noteId;
+                    
+                    if (!noteId) return;
+
+                    if (confirm('Are you sure you want to delete this note?')) {
+                        const pageInfo = document.querySelector('.page-info');
+                        const currentPage = pageInfo ? parseInt(pageInfo.textContent.split(' ')[1]) : 1;
+
+                        fetch(`/delete_note/${noteId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ page: currentPage })
+                        })
+                        .then(response => response.ok ? response.json() : Promise.reject('Deletion failed'))
+                        .then(data => {
+                            if (data.status === 'success') {
+                                card.style.transition = 'opacity 0.3s ease';
+                                card.style.opacity = '0';
+                                setTimeout(() => {
+                                    card.remove();
+                                    if (data.next_note) {
+                                        addNoteToGrid(data.next_note, data.next_note._id, 'append');
+                                    } else {
+                                        if (notesGrid.querySelectorAll('.note-card').length === 0) {
+                                            window.location.reload();
+                                        }
+                                    }
+                                }, 300);
+                            } else { alert('Error: ' + data.message); }
+                        })
+                        .catch(err => console.error('Deletion failed:', err));
+                    }
+                }
+                const achieveButton = target.closest('.achieve-btn');
+                if (achieveButton) {
+                    event.preventDefault();
+                    const card = achieveButton.closest('.note-card');
+                    const noteId = card.dataset.noteId;
+
+                    if (!noteId) return;
+
+                    // Optional: Add a loading state to the button
+                    achieveButton.textContent = 'Marking...';
+
+                    // Call the Flask route to update the goal's status
+                    fetch(`/achieve_goal/${noteId}`, { method: 'POST' })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Server responded with an error.');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // On success, update the UI instantly
+                            const goalIndicator = card.querySelector('.goal-indicator');
+                            if (goalIndicator) {
+                                goalIndicator.classList.add('achieved');
+
+                                // Add the green checkmark icon
+                                const checkIcon = document.createElement('i');
+                                checkIcon.className = 'fas fa-check-circle';
+                                goalIndicator.appendChild(checkIcon);
+                            }
+                            // Remove the "Mark as Achieved" button from the dropdown
+                            achieveButton.remove();
+
+                            // Also update the view more button if it exists
+                            const viewMoreButton = card.querySelector('.view-more-btn');
+                            if (viewMoreButton) {
+                                viewMoreButton.dataset.isAchieved = 'True'; // Update the data attribute
+                                //viewMoreButton.querySelector('i').classList.add('achieved'); // Add achieved class to icon
+                            }
+                        } else {
+                            // Handle errors sent from the server
+                            alert('Error: ' + data.message);
+                            achieveButton.textContent = 'Mark as Achieved'; // Reset button text
+                        }
+                    })
+                    .catch(err => {
+                        // Handle network errors
+                        console.error('Failed to mark as achieved:', err);
+                        alert('An error occurred. Please try again.');
+                        achieveButton.textContent = 'Mark as Achieved'; // Reset button text
+                    });
+                }
+                // --- END: New Logic ---
+                const viewMoreButton = event.target.closest('.view-more-btn')
+                if (viewMoreButton) {
+                    const data = viewMoreButton.dataset;
+
+                    console.log('View More Button Clicked:', data);
+
+                    document.getElementById('view-modal-title').textContent = data.title;
+                    document.getElementById('view-modal-details').textContent = data.details;
+                    const indicatorsContainer = document.getElementById('view-modal-indicators');
+                    const dateContainer = document.getElementById('view-modal-date');
+                    indicatorsContainer.innerHTML = '';
+                    if (data.isGoal === 'True' || data.isGoal === true || data.isGoal === 'true') {
+                        const goalIndicator = document.createElement('div');
+                        goalIndicator.className = 'goal-indicator';
+                        goalIndicator.innerHTML = '<i class="fas fa-bullseye"></i> Goal';
+
+                        if (data.isAchieved === 'True' || data.isAchieved === true || data.isAchieved === 'true') {
+                            goalIndicator.classList.add('achieved');
+                            goalIndicator.innerHTML += ' <i class="fas fa-check-circle"></i>';
+                        }
+
+                        indicatorsContainer.appendChild(goalIndicator);
+                    }
+                    dateContainer.textContent = `Created: ${data.createdAt}`;
+                    viewNoteModal.style.display = 'flex';
+                    return; // Stop further processing
+                }
+            });
+
+            // --- 6. Logic for Dropdown Menus ---
+            document.addEventListener('click', (event) => {
+                if (event.target.closest('.menu-btn')) {
+                    const menu = event.target.closest('.menu-container').querySelector('.dropdown-menu');
+                    menu.classList.toggle('active');
+                } else {
+                    document.querySelectorAll('.dropdown-menu.active').forEach(menu => {
+                        menu.classList.remove('active');
+                    });
+                }
+            });
+        });
+    </script>
+{% endblock %}

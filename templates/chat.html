@@ -1,0 +1,139 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ title }} - AI Chat-Alonis{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/assessment.css') }}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="chat-wrapper">
+
+        <div class="chat-wrapper">
+            <div class="chat-container">
+                <header class="chat-header">
+                    <h2>AI Chat</h2>
+                    <p>Ask me anything!</p>
+                </header>
+                <main class="chat-box" id="chat-box">
+                    <div class="initial-loader" id="initial-loader">
+                        <div class="dot-flashing"></div>
+                    </div>
+                    <div class="message-row" data-sender="ai" id="thinking-bubble" style="display: none;">
+                        <div class="bubble">
+                            <div class="dot-flashing"></div>
+                        </div>
+                    </div>
+                </main>
+                <footer class="chat-input-area">
+                    <form id="chat-form" action="{{ url_for('chat_page') }}" method="POST">
+                        <input type="text" id="user-input" name="user_message" placeholder="Type a message..." autocomplete="off" required>
+                        <button type="submit">Send</button>
+                    </form>
+                </footer>
+            </div>
+        </div>
+
+        <a href="{{ url_for('new_chat') }}" class="new-chat-btn" title="Start a New Chat">
+            <i class="fas fa-plus"></i>
+            <span class="btn-text">
+                Start a fresh session
+                <small>Don't worry, I'll remember our past talks!</small>
+            </span>
+        </a>
+
+       <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                // --- 1. Get Elements and Define Helpers ---
+                const chatBox = document.getElementById('chat-box');
+                const chatForm = document.getElementById('chat-form');
+                const userInput = document.getElementById('user-input');
+                const initialLoader = document.getElementById('initial-loader');
+                const thinkingBubble = document.getElementById('thinking-bubble');
+
+                const scrollToBottom = () => {
+                    // A small delay ensures the DOM has updated before scrolling
+                    setTimeout(() => {
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    }, 50);
+                };
+
+                const addMessage = (sender, text) => {
+                    const messageRow = document.createElement('div');
+                    messageRow.className = `message-row`;
+                    messageRow.dataset.sender = sender;
+
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble';
+                    bubble.textContent = text;
+                    
+                    messageRow.appendChild(bubble);
+                    chatBox.appendChild(messageRow);
+                };
+
+                // --- 2. Logic to Load Initial Chat ---
+                const initializeChat = () => {
+                    fetch("{{ url_for('api_init_chat') }}", { method: 'POST' })
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network response was not ok');
+                            return response.json();
+                        })
+                        .then(data => {
+                            initialLoader.style.display = 'none';
+                            if (data.messages && data.messages.length > 0) {
+                                data.messages.forEach(msg => {
+                                    addMessage(msg.sender, msg.text);
+                                });
+                            }
+                            scrollToBottom();
+                            userInput.focus();
+                        })
+                        .catch(error => {
+                            initialLoader.innerHTML = '<p style="color: #B91C1C;">Failed to load chat history.</p>';
+                            console.error('Error initializing chat:', error);
+                        });
+                };
+
+                // --- 3. Logic to Handle New Messages ---
+                chatForm.addEventListener('submit', (event) => {
+                    event.preventDefault();
+
+                    const userMessage = userInput.value.trim();
+                    if (userMessage === '') return;
+
+                    addMessage('user', userMessage);
+                    userInput.value = '';
+                    scrollToBottom();
+
+                    chatBox.appendChild(thinkingBubble);
+                    thinkingBubble.style.display = 'flex';
+                    scrollToBottom();
+
+                    fetch("{{ url_for('chat_page') }}", {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: userMessage }),
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
+                    .then(data => {
+                        thinkingBubble.style.display = 'none';
+                        addMessage('ai', data.ai_response);
+                        scrollToBottom();
+                    })
+                    .catch((error) => {
+                        thinkingBubble.style.display = 'none';
+                        addMessage('ai', 'Sorry, an error occurred on the server.');
+                        console.error('Error sending message:', error);
+                    });
+                });
+
+                // --- 4. Start the Initialization Process ---
+                initializeChat();
+            });
+        </script>
+        
+{% endblock %}

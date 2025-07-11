@@ -1,0 +1,228 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #fce3ec 0%, #d5eaff 100%);
+    overflow: hidden;
+}
+
+/* Header Styling */
+.page-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 64px;
+    box-sizing: border-box;
+    z-index: 10;
+}
+
+.logo a {
+    font-size: 80px;
+    font-weight: 700;
+    color: #111;
+    text-decoration: none;
+}
+
+.header-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Main Content Wrapper */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    gap: 100px; /* Creates space between the text and the login card */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.login-card {
+    background: #ffffff;
+    padding: 40px 50px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+    margin: 0; /* Reset any margins if necessary */
+}
+
+.login-card h2 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 30px;
+    color: #111;
+}
+
+/* Form Group & Input Styling */
+.form-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 14px 20px;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* New: Add padding to password input to make space for the icon */
+input#password {
+    padding-right: 50px;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+/* New: Password Icon Styling */
+.password-group {
+    position: relative;
+}
+#togglePassword {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #9CA3AF;
+}
+
+/* Main Login Button */
+.btn-login {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    /* New: Darker gradient for the button */
+    background: linear-gradient(to right, #6366F1, #4F46E5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    display: flex; /* For loading spinner alignment */
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-login:hover {
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+}
+
+/* New: Loading State Styles */
+.btn-login .btn-spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+.btn-login.loading .btn-text {
+    display: none;
+}
+.btn-login.loading .btn-spinner {
+    display: block;
+}
+.btn-login.loading {
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Header Buttons */
+.btn {
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    border: 1px solid transparent;
+}
+.btn-primary {
+    background-color: #111827;
+    color: #FFF;
+}
+.btn-secondary {
+    background-color: rgba(255, 255, 255, 0.5);
+    color: #1F2937;
+    border: 1px solid rgba(209, 213, 219, 0.7);
+}
+.btn-secondary:hover {
+    background-color: #FFFFFF;
+}
+
+/* Prompts */
+.error-banner {
+    background-color: #FEE2E2;
+    color: #B91C1C;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    border: 1px solid #FCA5A5;
+}
+.error-banner p { margin: 0; font-weight: 500; }
+
+.login-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.login-toggle label { font-weight: 600; font-size: 14px; color: #374151; }
+.login-toggle a { font-size: 13px; color: #4F46E5; text-decoration: none; font-weight: 500; }
+.login-toggle a:hover { text-decoration: underline; }
+
+.signup-prompt {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 14px;
+    color: #4B5563;
+}
+.signup-prompt a { color: #6366F1; font-weight: 600; text-decoration: none; }
+.signup-prompt a:hover { text-decoration: underline; }
+
+/* Add these NEW rules for the branding text */
+.login-branding {
+    display: flex;
+    flex-direction: column; /* Stacks the words vertically */
+    gap: 15px;
+}
+
+.login-branding span {
+    font-size: 28px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.4);
+    line-height: 1.2;
+}
+
+.login-branding strong {
+    font-size: 60px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.9); /* White text with some transparency */
+    text-shadow: 0 2px 15px rgba(0,0,0,0.1); /* Adds a subtle shadow */
+    margin-right: 8px;
+    display: inline-block;
+}

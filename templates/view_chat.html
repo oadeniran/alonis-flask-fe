@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+
+{% block title %}Chat History - Alonis{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/assessment.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="view-chat-wrapper">
+        <div class="chat-container view-only">
+            <header class="chat-header">
+                <h2>Chat History</h2>
+                <p>This is a read-only view of your past conversation.</p>
+            </header>
+            <main class="chat-box" id="chat-box">
+                
+                {% for message in messages %}
+                    {# Skip any messages that are empty #}
+                    {% if clean_message in message and message.clean_message.strip() %}
+                        <div class="message-row" data-sender="{{ 'user' if message.type == 'user' else 'ai' }}">
+                            <div class="bubble">{{ message.clean_message }}</div>
+                        </div>
+                    {% else %}
+                        {# Fallback to the original message if clean_message is not available #}
+
+                        {% if message.message.strip() %}
+                            <div class="message-row" data-sender="{{ 'user' if message.type == 'user' else 'ai' }}">
+                                <div class="bubble">{{ message.message }}</div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatBox = document.getElementById('chat-box');
+            if(chatBox) {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        });
+    </script>
+{% endblock %}

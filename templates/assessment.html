@@ -1,0 +1,181 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ title }} - Alonis{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/assessment.css') }}">
+{% endblock %}
+
+{% block content %}
+
+    {% if is_report_generated %}
+
+        <div class="report-generated-prompt">
+            <i class="fas fa-check-circle"></i>
+            <h4>Assessment Complete!</h4>
+            <p>You have already completed this assessment and generated a report.</p>
+            <div class="prompt-actions">
+                <a href="{{ url_for('report_page', session_id=session_id) }}" class="btn btn-primary">View Report</a>
+                <a href="{{ url_for('reset_assessment', assessment_type=assessment_type) }}" class="btn btn-secondary">Take New Assessment</a>
+            </div>
+        </div>
+    {% elif show_intro %}
+        <div class="intro-prompt">
+            <i class="fas fa-rocket"></i>
+            <h3>{{ title }}</h3>
+            <p>{{ intro_text }}</p>
+            <div class="prompt-actions">
+                <a href="{{ url_for('start_assessment', assessment_type=assessment_type) }}" class="btn btn-primary">Start Assessment</a>
+            </div>
+        </div>
+
+    {% else %}
+
+        <div class="chat-wrapper">
+            <div class="chat-container">
+                <header class="chat-header">
+                    <h2>{{ title }}</h2>
+                    <p>Your conversation with Alonis</p>
+                </header>
+                <main class="chat-box" id="chat-box">
+                    {% for message in messages %}
+                        <div class="message-row" data-sender="{{ message.sender }}">
+                            <div class="bubble">{{ message.text }}</div>
+                        </div>
+                    {% endfor %}
+
+                    <div class="message-row" data-sender="ai" id="thinking-bubble" style="display: none;">
+                        <div class="bubble">
+                            <div class="dot-flashing"></div>
+                        </div>
+                    </div>
+                </main>
+                <footer class="chat-input-area">
+                    <form id="chat-form" action="{{ url_for('assessment_page', assessment_type=assessment_type) }}" method="POST">
+                        <input type="text" id="user-input" name="user_message" placeholder="Type your response..." autocomplete="off" required>
+                        <button type="submit">Send</button>
+                    </form>
+                </footer>
+            </div>
+        </div>
+
+        <div class="modal-overlay {% if show_confirmation_modal %}active{% endif %}" id="confirmation-modal">
+            <div class="modal-content">
+                <h3>Assessment in Progress</h3>
+                <p>You have another assessment in progress. Would you like to end it and start a new one?</p>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="cancel-btn">No, Go Back</button>
+                    <a href="{{ url_for('reset_assessment', assessment_type=assessment_type) }}" class="btn btn-primary">Yes, Start New</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="generate-report-modal" style="display: none;">
+            <div class="modal-content">
+                <h3>Analysis Complete</h3>
+                <p id="modal-completion-message">Required data has been extracted.</p>
+                <div class="modal-actions">
+                    <a href="#" class="btn btn-primary btn-generate" id="generate-report-btn">
+                        <span class="btn-text">Generate Report</span>
+                        <span class="btn-spinner"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cancelBtn = document.getElementById('cancel-btn');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', () => {
+                    // This simply takes the user back to the page they were on before
+                    window.history.back();
+                });
+            }
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatBox = document.getElementById('chat-box');
+            const chatForm = document.getElementById('chat-form');
+            const userInput = document.getElementById('user-input');
+
+            const scrollToBottom = () => {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            };
+
+            const addMessage = (sender, text) => {
+                const messageRow = document.createElement('div');
+                messageRow.className = `message-row`;
+                messageRow.dataset.sender = sender;
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.textContent = text;
+                messageRow.appendChild(bubble);
+                chatBox.appendChild(messageRow);
+            };
+
+            scrollToBottom();
+            userInput.focus();
+
+            chatForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                const userMessage = userInput.value.trim();
+                if (userMessage === '') return;
+
+                addMessage('user', userMessage);
+                userInput.value = '';
+                scrollToBottom();
+
+                const thinkingBubble = document.getElementById('thinking-bubble');
+                chatBox.appendChild(thinkingBubble);
+                thinkingBubble.style.display = 'flex';
+                scrollToBottom();
+
+                fetch("{{ url_for('assessment_page', assessment_type=assessment_type) }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userMessage }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    thinkingBubble.style.display = 'none';
+
+                    // START: New logic to handle different statuses
+                    if (data.status === 'continue') {
+                        // This is a normal chat message
+                        addMessage('ai', data.data.ai_response);
+                    } else if (data.status === 'complete') {
+                        // The assessment is done, show the modal
+                        addMessage('ai', data.data.message); // Show the final message
+
+                        // Populate and show the modal
+                        const reportModal = document.getElementById('generate-report-modal');
+                        const reportBtn = document.getElementById('generate-report-btn');
+                        const modalMessage = document.getElementById('modal-completion-message');
+
+                        modalMessage.textContent = data.data.message;
+                        // Set the correct URL for the button
+                        reportBtn.href = `/generate_report/{{ assessment_type }}/${data.data.session_id}`;
+                        
+                        reportModal.style.display = 'flex';
+                    }
+                    // END: New logic
+                    
+                    scrollToBottom();
+                })
+                .catch((error) => {
+                    thinkingBubble.style.display = 'none';
+                    addMessage('ai', 'Sorry, something went wrong.');
+                    console.error('Error:', error);
+                });
+            });
+        const generateReportBtn = document.getElementById('generate-report-btn');
+        if (generateReportBtn) {
+            generateReportBtn.addEventListener('click', () => {
+                generateReportBtn.classList.add('loading');
+            });
+        }
+        });
+    </script>
+{% endblock %}

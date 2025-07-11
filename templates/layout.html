@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Alonis{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="app-container"> <aside class="sidebar">
+            <a href="{{ url_for('home_page') }}" class="sidebar-logo">
+                <i class="fas fa-home"></i>
+                <span class="logo-text">Alonis</span>
+            </a>
+            <nav class="sidebar-nav">
+                <a href="javascript:history.back()" class="nav-link" title="Go back to previous page">
+                    <i class="fas fa-arrow-left"></i> 
+                    <span class="link-text">Previous Page</span>
+                </a>
+                <a href="{{ url_for('assessment_page', assessment_type='personality') }}" class="nav-link" title="Personality Assessment">
+                    <i class="fas fa-user-check"></i>
+                    <span class="link-text">Personality Assessment</span>
+                </a>
+
+                <a href="{{ url_for('assessment_page', assessment_type='mindlab') }}" class="nav-link" title="MindLens">
+                    <i class="fas fa-brain"></i>
+                    <span class="link-text">MindLens</span>
+                </a>
+
+                <a href="{{ url_for('notes_page') }}" class="nav-link" title="Notes & Goals">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span class="link-text">Notes & Goals</span>
+                </a>
+                <a href="{{ url_for('chat_page') }}" class="nav-link" title="AI Chat">
+                    <i class="fas fa-comments"></i>
+                    <span class="link-text">AI Chat</span>
+                </a>
+                 <a href="{{ url_for('recommendations_page') }}" class="nav-link" title="Recommendations">
+                    <i class="fas fa-magic"></i>
+                    <span class="link-text">Recommendations</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="nav-link" id="sidebar-expander" title="Toggle Menu">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <a href="{{ url_for('logout') }}" class="nav-link logout" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="link-text">Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="main-header">
+                <h1 class="header-title">Alonis</h1>
+                <div class="user-profile">
+                    <a href="{{ url_for('profile_page') }}">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                </div>
+            </header>
+            
+            <div class="page-content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const expanderButton = document.getElementById('sidebar-expander');
+            const appContainer = document.querySelector('.app-container');
+
+            expanderButton.addEventListener('click', () => {
+                appContainer.classList.toggle('sidebar-expanded');
+            });
+        });
+    </script>
+</body>
+</html>

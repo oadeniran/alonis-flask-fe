@@ -1,0 +1,127 @@
+/* General Setup */
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    /* New: Added a subtle gradient background */
+    background: linear-gradient(180deg, #F9FAFB 0%, #F3F4F6 100%);
+    min-height: 100vh;
+}
+
+.page-logo {
+    position: absolute;
+    top: 40px;
+    left: 60px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #4B5563;
+    text-decoration: none;
+    z-index: 10;
+}
+
+/* Page Wrapper & Header */
+.rec-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 100px 40px 40px 40px;
+}
+
+.rec-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.rec-header h1 {
+    font-size: 42px; /* New: Increased size */
+    font-weight: 700;
+    color: #1F2937;
+    margin: 0 0 10px 0;
+}
+
+.rec-header p {
+    font-size: 18px;
+    color: #6B7280;
+    margin: 0;
+}
+
+/* Category Sections */
+.rec-category {
+    margin-bottom: 50px;
+}
+
+/* New: Completely restyled the section headers to look like tags */
+.rec-category h2 {
+    display: inline-block;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 20px;
+    background-color: #E0E7FF;
+    color: #4338CA;
+    margin-bottom: 25px;
+}
+
+/* Items Grid */
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+/* New: Updated card styling */
+.item-card {
+    background-color: #FFFFFF;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 4px 20px rgba(31, 41, 55, 0.05);
+    border: 1px solid #EAECEE;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.item-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(79, 70, 229, 0.1); /* New: Added a colored shadow on hover */
+}
+
+.item-card h3 {
+    margin: 0 0 10px 0;
+    color: #4F46E5; /* New: Changed title color to purple */
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.item-card p {
+    margin: 0;
+    color: #4B5563;
+    line-height: 1.6;
+}
+
+.empty-state-prompt {
+    /* This makes the prompt span the full width of the grid container */
+    grid-column: 1 / -1; 
+    background-color: #F9FAFB;
+    border: 2px dashed #E5E7EB;
+    border-radius: 12px;
+    padding: 50px 30px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.empty-state-prompt i {
+    font-size: 28px;
+    color: #A5B4FC;
+    margin-bottom: 15px;
+}
+
+.empty-state-prompt h4 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1F2937;
+    margin: 0 0 8px 0;
+}
+
+.empty-state-prompt p {
+    font-size: 16px;
+    color: #6B7280;
+    margin: 0;
+    line-height: 1.6;
+}

@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+
+{% block title %}All Recommendations - Alonis{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/recommendations.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="rec-wrapper">
+        <header class="rec-header">
+            <h1>Explore Recommendations</h1>
+            <p>Content curated just for you by Alonis</p>
+        </header>
+
+        <section class="rec-category">
+            <h2>Alonis Recommendations</h2>
+            <div class="items-grid">
+                {% for rec in alonis_recommendation_data %}
+                <div class="item-card">
+                    <h3>{{ rec.title }}</h3>
+                    <p>{{ rec.details }}</p>
+                </div>
+                {% else %}
+                <div class="empty-state-prompt">
+                    <i class="fas fa-brain"></i>
+                    <h4>My Personal Suggestions For You</h4>
+                    <p>My own recommendations will appear here. The more we interact, the better they'll get!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        <section class="rec-category">
+            <h2>Movies You Can Watch</h2>
+            <div class="items-grid">
+                {% for movie in movies %}
+                <div class="item-card">
+                    <h3>{{ movie.title }} ({{ movie.year }})</h3>
+                    <p>{{ movie.description }}</p>
+                </div>
+                {% else %}
+                <div class="empty-state-prompt">
+                    <i class="fas fa-film"></i>
+                    <h4>No Movie Suggestions Yet</h4>
+                    <p>The more you interact with Alonis, the better I can tailor movie night for you!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="rec-category">
+            <h2>Songs You Can Listen To</h2>
+            <div class="items-grid">
+                {% for song in songs %}
+                <div class="item-card">
+                    <h3>{{ song.title }}</h3>
+                    <p>by {{ song.artist }}</p>
+                </div>
+                {% else %}
+                <div class="empty-state-prompt">
+                    <i class="fas fa-music"></i>
+                    <h4>Looking for a New Soundtrack?</h4>
+                    <p>Your song recommendations will appear here as I get to know your tastes.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="rec-category">
+            <h2>News That Might Be Relevant</h2>
+            <div class="items-grid">
+                {% for article in news %}
+                <div class="item-card">
+                    <h3>{{ article.headline }}</h3>
+                    <p>Source: {{ article.source }}</p>
+                </div>
+                {% else %}
+                <div class="empty-state-prompt">
+                    <i class="fas fa-newspaper"></i>
+                    <h4>No Relevant News Right Now</h4>
+                    <p>I'm always scanning for articles that match your interests. Check back soon!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+{% endblock %}

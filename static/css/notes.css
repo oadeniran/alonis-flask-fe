@@ -1,0 +1,210 @@
+/* General Setup */
+body { margin: 0; font-family: 'Inter', sans-serif; background-color: #F8F9FA; }
+
+/* Page Wrapper & Header */
+.notes-wrapper { max-width: 1200px; margin: 0 auto; padding: 40px; }
+.notes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+.notes-header h1 { font-size: 36px; color: #1F2937; }
+
+/* Notes Grid */
+.notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
+
+/* Note Card Styling */
+.note-card { background-color: #FFFFFF; border-radius: 12px; padding: 25px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; }
+.note-card h3 { margin: 0 0 10px 0; color: #111827; }
+.note-card p { margin: 0; color: #4B5563; line-height: 1.6; flex-grow: 1; } /* Allows text to take up space */
+
+/* New: Card Header & Footer */
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+.card-footer { border-top: 1px solid #F3F4F6; padding-top: 15px; margin-top: 20px; font-size: 13px; color: #9CA3AF; }
+
+.goal-indicator { background-color: #E0E7FF; color: #4338CA; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+.no-notes { grid-column: 1 / -1; text-align: center; color: #6B7280; padding: 40px; }
+
+/* New: Dropdown Menu Styling */
+.menu-container { position: relative; }
+.menu-btn { background: none; border: none; cursor: pointer; color: #9CA3AF; padding: 5px; border-radius: 50%; }
+.menu-btn:hover { background-color: #F3F4F6; }
+.dropdown-menu { display: none; /* Hidden by default */ position: absolute; right: 0; top: 30px; background-color: #fff; border: 1px solid #E5E7EB; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10; width: 120px; }
+.dropdown-menu.active { display: block; /* Shown with JavaScript */ }
+.dropdown-item { display: block; padding: 10px 15px; text-decoration: none; color: #374151; font-size: 14px; }
+.dropdown-item:hover { background-color: #F3F4F6; }
+.dropdown-item.delete-btn { color: #DC2626; }
+
+/* Style for the 'Mark as Achieved' button in the dropdown */
+.dropdown-item.achieve-btn {
+    color: #16A34A; /* Green color for the action */
+    font-weight: 500;
+}
+
+/* Styling for the goal indicator when a goal is achieved */
+.goal-indicator.achieved {
+    background-color: #D1FAE5; /* Light green */
+    color: #065F46; /* Dark green */
+}
+
+/* Style for the checkmark icon */
+.goal-indicator .fa-check-circle {
+    margin-left: 5px;
+}
+
+/* New: Pagination Styling */
+.pagination { display: flex; justify-content: center; align-items: center; margin-top: 40px; gap: 20px; }
+.page-link { color: #4F46E5; text-decoration: none; font-weight: 600; }
+.page-info { color: #6B7280; font-size: 14px; }
+
+/* Modal Styling */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Allows the form to fill the modal's height */
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 30px 40px; /* Increased top/bottom padding for more space */
+    border-radius: 16px; /* A slightly larger radius for a bigger box */
+    width: 100%;
+    max-width: 800px; /* The width you just set */
+    min-height: 450px;  /* ADD THIS LINE - adjust the value as needed */
+    
+    /* Add flexbox to help position the content and button */
+    display: flex;
+    flex-direction: column;
+
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #6B7280;
+}
+
+/* Form Styling */
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+.form-group input[type="text"], .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+    flex-grow: 1; /* Allows input to take up available space */
+}
+
+
+.form-body {
+    flex-grow: 1; /* This is the magic line that pushes the footer down */
+}
+
+
+.form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px; /* Adds some space above the footer */
+    padding-top: 20px;
+    border-top: 1px solid #F3F4F6;
+}
+
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0;
+}
+
+/* Button */
+.btn-primary {
+    background-color: #4F46E5;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* "View More" button styling */
+.view-more-btn {
+    background: none;
+    border: none;
+    color: #4F46E5;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Ensure card footer spaces out the date and the new button */
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Styling for the new "View Note" modal content */
+.view-modal-body {
+    padding-top: 15px;
+    max-height: 60vh; /* Allow scrolling for very long text */
+    overflow-y: auto;
+    text-align: left;
+}
+.view-modal-body p {
+    color: #4B5563;
+    line-height: 1.7;
+    white-space: pre-wrap; /* Preserves line breaks in the details */
+}
+
+.view-modal-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #F3F4F6;
+    font-size: 14px;
+    color: #9CA3AF;
+}
