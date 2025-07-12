@@ -58,11 +58,11 @@ def get_talk_session_chat_response(tak_data):
     return response.json()
 
 def get_session_chat_messages(user_id, session_id, is_talk_session=False):
-    url = API_BASE_URL + f'/user/{user_id}/{session_id}/session-chats?s_talk_session={is_talk_session}'
+    url = API_BASE_URL + f'/user/{user_id}/{session_id}/session-chats?is_talk_session={is_talk_session}'
     response = requests.get(url)
-    print(f"API Response: {response.status_code} - {response.text[:300]}")
+    print(f"API Response: {response.status_code} - {response.text[:400]}")
     if response.status_code != 200:
-        raise Exception(f"Error fetching session messages: {response.text[:300]}")
+        raise Exception(f"Error fetching session messages: {response.text[:400]}")
     return response.json()
 
 def get_session_result_report(user_id, session_id):

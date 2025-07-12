@@ -37,6 +37,17 @@
             </nav>
 
             <div id="assessments" class="tab-content active">
+                <div class="skeleton-history-item"></div>
+                <div class="skeleton-history-item"></div>
+                <div class="skeleton-history-item"></div>
+            </div>
+
+            <div id="talks" class="tab-content">
+                <div class="skeleton-history-item"></div>
+                <div class="skeleton-history-item"></div>
+            </div>
+
+            <!-- <div id="assessments" class="tab-content active">
                 {% for item in assessments %}
                 <div class="history-item">
                     <div class="item-info">
@@ -77,7 +88,7 @@
                             <p>Your past conversations with me will be saved here. Start a new chat from the menu to begin.</p>
                         </div>
                 {% endfor %}
-            </div>
+            </div> -->
         </main>
     </div>
 
@@ -106,6 +117,92 @@
                 saveButton.classList.add('loading');
                 saveButton.disabled = true;
             });
+
+            const loadHistoryData = () => {
+                const assessmentsContainer = document.getElementById('assessments');
+                const talksContainer = document.getElementById('talks');
+
+                fetch("{{ url_for('api_profile_history') }}")
+                    .then(response => response.ok ? response.json() : Promise.reject('Failed'))
+                    .then(data => {
+                        // Populate Assessments Tab
+                        assessmentsContainer.innerHTML = ''; // Clear skeletons
+                        if (data.assessments && data.assessments.length > 0) {
+                            data.assessments.forEach(item => {
+                                const historyItem = document.createElement('div');
+                                historyItem.className = 'history-item';
+
+                                // Replicate the Jinja2 logic in JavaScript
+                                const formattedTitle = item.session_type.replace("assessment_", "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+                                
+                                // Conditionally create the "View Report" button
+                                let reportButtonHTML = '';
+                                if (item.has_report) {
+                                    reportButtonHTML = `<a href="/report/${item.session_id}" class="btn-action">View Report</a>`;
+                                }
+
+                                historyItem.innerHTML = `
+                                    <div class="item-info">
+                                        <strong>${formattedTitle} Assessment</strong>
+                                        <span>Taken on: ${item.date}</span>
+                                    </div>
+                                    <div class="item-actions">
+                                        ${reportButtonHTML}
+                                        <a href="/view_chat/${item.session_id}" class="btn-action secondary">View Chat</a>
+                                    </div>
+                                `;
+                                assessmentsContainer.appendChild(historyItem);
+                            });
+                        } else {
+                            // If the list is empty, show the prompt
+                            assessmentsContainer.innerHTML = `
+                                <div class="empty-state-prompt">
+                                    <i class="fas fa-lightbulb"></i>
+                                    <h4>No assessments yet!</h4>
+                                    <p>Your assessment history will appear here. Get started from the menu!</p>
+                                </div>
+                            `;
+                        }
+
+                        // Populate Talks Tab
+                        talksContainer.innerHTML = ''; // Clear skeletons
+                        if (data.talks && data.talks.length > 0) {
+                            data.talks.forEach(item => {
+                                const historyItem = document.createElement('div');
+                                historyItem.className = 'history-item';
+                                const formattedTitle = item.session_type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+                                
+                                historyItem.innerHTML = `
+                                    <div class="item-info">
+                                        <strong>${formattedTitle}</strong>
+                                        <span>Session on: ${item.date}</span>
+                                    </div>
+                                    <div class="item-actions">
+                                        <a href="/view_chat/${item.session_id}?is_talk_session=true" class="btn-action secondary">View Chat</a>
+                                    </div>
+                                `;
+                                talksContainer.appendChild(historyItem);
+                            });
+                        } else {
+                            // If the list is empty, show the prompt
+                            talksContainer.innerHTML = `
+                                <div class="empty-state-prompt">
+                                    <i class="fas fa-comments"></i>
+                                    <h4>No saved talks!</h4>
+                                    <p>Your past conversations will be saved here for you to review.</p>
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching history:', error);
+                        assessmentsContainer.innerHTML = '<p>Could not load history.</p>';
+                        talksContainer.innerHTML = '<p>Could not load history.</p>';
+                    });
+            };
+
+            // --- Run the data loading function ---
+            loadHistoryData();
         });
     </script>
 {% endblock %}

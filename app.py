@@ -131,11 +131,11 @@ def api_recommendations():
     try:
         # Your logic to get recommendations from an API would go here
         recommendations_from_api = [
-            {'title': 'Practice Mindfulness', 'details': 'Take 5 minutes to focus on your breath.'},
-            {'title': 'Connect with a Friend', 'details': 'Reach out to someone you trust for a quick chat.'},
-            {'title': 'Start a Gratitude List', 'details': 'Write down three things you are grateful for today.'},
-            {'title': 'Plan Your Day', 'details': 'Organizing your tasks can provide a sense of control.'},
-            {'title': 'Go for a Short Walk', 'details': 'A brief walk outside can boost your mood.'},
+            # {'title': 'Practice Mindfulness', 'details': 'Take 5 minutes to focus on your breath.'},
+            # {'title': 'Connect with a Friend', 'details': 'Reach out to someone you trust for a quick chat.'},
+            # {'title': 'Start a Gratitude List', 'details': 'Write down three things you are grateful for today.'},
+            # {'title': 'Plan Your Day', 'details': 'Organizing your tasks can provide a sense of control.'},
+            # {'title': 'Go for a Short Walk', 'details': 'A brief walk outside can boost your mood.'},
         ]
         return jsonify({'recommendations': recommendations_from_api})
     except Exception as e:
@@ -642,6 +642,25 @@ def logout():
     session.clear()
     return redirect(url_for('home'))
 
+@app.route('/api/profile_history')
+def api_profile_history():
+    if 'user_data' not in session:
+        return jsonify({'error': 'User not logged in'}), 401
+    
+    try:
+        user_sessions_history = api_calls.get_user_sessions(
+            user_id=session.get('user_data', {}).get('user_id')
+        )
+        assessments_history = user_sessions_history.get("sessions", {}).get('assessments', [])
+        talks_history = user_sessions_history.get("sessions", {}).get('talk_sessions', [])
+        
+        return jsonify({
+            'assessments': assessments_history,
+            'talks': talks_history
+        })
+    except Exception as e:
+        print(f"API Error in profile_history: {e}")
+        return jsonify({'error': 'Could not load history.'}), 500
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile_page():
@@ -654,18 +673,6 @@ def profile_page():
         print(f"Updating user data: {updated_data}")
         time.sleep(1.5) # Simulate a delay for the loading state
         return redirect(url_for('profile_page'))
-
-    # Data for the tabs
-    try:
-        user_sessions_history = api_calls.get_user_sessions(
-            user_id=session.get('user_data', {}).get('user_id')
-        )
-    except Exception as e:
-        # Handle API call failure (e.g., network error, server error)
-        print("Failed to fetch user details.")
-        
-    assessments_history = user_sessions_history.get("sessions", {}).get('assessments', [])
-    talks_history = user_sessions_history.get("sessions", {}).get('talk_sessions', [])
 
     # Ordered user info session and non editable fields
     user_data = session.get('user_data', {})
@@ -690,8 +697,8 @@ def profile_page():
     return render_template(
         'profile.html',
         user_details=user_details_list,
-        assessments=assessments_history,
-        talks=talks_history
+        assessments=[],
+        talks=[]
     )
 
 @app.route('/report/<session_id>')
@@ -726,9 +733,14 @@ def view_chat_page(session_id):
         # Means User is not logged in, redirect to login
         return redirect(url_for('login'))
     
+    is_talk_session = request.args.get('is_talk_session', 'false').lower() in {
+        '1', 'true', 'yes', 'y'
+    }
+    
     chat_history = api_calls.get_session_chat_messages(
         user_id=session.get('user_data', {}).get('user_id'),
-        session_id=session_id
+        session_id=session_id,
+        is_talk_session=is_talk_session
     )
     messages = chat_history.get('messages', [])
 

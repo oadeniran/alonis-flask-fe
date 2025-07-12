@@ -16,19 +16,14 @@
             <main class="chat-box" id="chat-box">
                 
                 {% for message in messages %}
-                    {# Skip any messages that are empty #}
-                    {% if message.clean_message.strip() %}
-                        <div class="message-row" data-sender="{{ 'user' if message.type == 'user' else 'ai' }}">
-                            <div class="bubble">{{ message.clean_message }}</div>
-                        </div>
-                    {% else %}
-                        {# Fallback to the original message if clean_message is not available #}
+                    {# This condition now checks if clean_message exists AND is not empty #}
+                    {% set message_text = message.clean_message if 'clean_message' in message and message.clean_message and message.clean_message.strip() else message.message %}
 
-                        {% if message.message.strip() %}
-                            <div class="message-row" data-sender="{{ 'user' if message.type == 'user' else 'ai' }}">
-                                <div class="bubble">{{ message.message }}</div>
-                            </div>
-                        {% endif %}
+                    {# The rest of the logic remains the same #}
+                    {% if message_text and message_text.strip() %}
+                        <div class="message-row" data-sender="{{ 'user' if message.type == 'user' else 'ai' }}">
+                            <div class="bubble">{{ message_text }}</div>
+                        </div>
                     {% endif %}
                 {% endfor %}
                 </main>

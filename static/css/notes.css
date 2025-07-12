@@ -2,12 +2,12 @@
 body { margin: 0; font-family: 'Inter', sans-serif; background-color: #F8F9FA; }
 
 /* Page Wrapper & Header */
-.notes-wrapper { max-width: 1200px; margin: 0 auto; padding: 40px; }
+.notes-wrapper { max-width: 1200px; margin: 0 auto; padding: 40px; margin: 0 auto; width: 100%;}
 .notes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
 .notes-header h1 { font-size: 36px; color: #1F2937; }
 
 /* Notes Grid */
-.notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
+.notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px;}
 
 /* Note Card Styling */
 .note-card { background-color: #FFFFFF; border-radius: 12px; padding: 25px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; }
