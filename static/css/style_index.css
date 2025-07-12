@@ -148,11 +148,27 @@ body {
     border-color: #D1D5DB;
 }
 
-.hero-action-buttons {
-    margin-top: 40px;
+.main-actions-container {
     display: flex;
-    align-items: center;
+    flex-direction: column; /* Stacks the button row and the link vertically */
+    align-items: center;   /* Centers them horizontally */
+    gap: 20px;             /* Creates space between the button row and the link */
+    margin-top: 40px;
+}
+
+.button-row {
+    display: flex;
     gap: 20px;
+}
+
+.about-link {
+    color: #4B5563;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+.about-link:hover {
+    color: #4F46E5;
 }
 
 /* Base style for the new big buttons */
@@ -189,6 +205,49 @@ body {
     background-color: #FFFFFF;
     border-color: #4F46E5;
     color: #4F46E5;
+}
+
+
+/* Make the feature link a block element */
+.feature-link {
+    text-decoration: none;
+    display: block; /* Helps with positioning */
+}
+
+/* Prepare the card for the overlay */
+.key-feature-card {
+    position: relative; /* Required for the absolute positioned overlay */
+    overflow: hidden; /* Keeps the overlay's corners rounded */
+    transition: transform 0.2s ease-in-out; /* Keep the hover lift effect */
+}
+
+/* The hidden overlay */
+.key-feature-card::after {
+    content: 'Click to learn more';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    /* Overlay styling */
+    background-color: rgba(79, 70, 229, 0.9); /* Semi-transparent primary color */
+    color: #FFFFFF;
+    font-weight: 600;
+    
+    /* Centering the text */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* Hide it by default */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Show the overlay on hover */
+.feature-link:hover .key-feature-card::after {
+    opacity: 1;
 }
 
 /* --- Mobile Responsiveness --- */

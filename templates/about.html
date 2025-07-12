@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+
+{% block title %}About Alonis{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="about-header">
+        <h1>About Alonis</h1>
+        <p>Your personalized AI companion for self-discovery and growth.</p>
+    </div>
+
+    <main class="accordion-container">
+        {% for section in sections %}
+        <div class="feature-explainer" id="{{ section.id }}">
+            <div class="feature-header">
+                <div class="feature-icon">
+                    <i class="{{ section.icon }}"></i>
+                </div>
+                <div class="feature-title">
+                    <h3>{{ section.title }}</h3>
+                    <p>{{ section.summary }}</p>
+                </div>
+                <div class="expand-icon">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+            <div class="feature-content">
+                <div class="content-inner">
+                    {{ section.content_html|safe }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </main>
+
+    <section class="branding-footer">
+        <div class="login-branding">
+            <strong>A</strong><span>wareness</span>
+            <strong>L</strong><span>ife</span>
+            <strong>O</strong><span>bservation</span>
+            <strong>N</strong><span>urturing</span>
+            <strong>I</strong><span>ntuition</span>
+            <strong>S</strong><span>elfhood</span>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const explainers = document.querySelectorAll('.feature-explainer');
+
+            // Logic for expanding/collapsing sections
+            explainers.forEach(explainer => {
+                const header = explainer.querySelector('.feature-header');
+                header.addEventListener('click', () => {
+                    explainer.classList.toggle('expanded');
+                });
+            });
+
+            // Logic to auto-expand a section if linked from the index page
+            const hash = window.location.hash.substring(1); // Get id from URL (e.g., #personality-test)
+            if (hash) {
+                const targetElement = document.getElementById(hash);
+                if (targetElement) {
+                    targetElement.classList.add('expanded');
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        });
+    </script>
+{% endblock %}

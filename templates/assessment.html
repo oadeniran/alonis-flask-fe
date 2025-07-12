@@ -52,7 +52,7 @@
                 </main>
                 <footer class="chat-input-area">
                     <form id="chat-form" action="{{ url_for('assessment_page', assessment_type=assessment_type) }}" method="POST">
-                        <input type="text" id="user-input" name="user_message" placeholder="Type your response..." autocomplete="off" required>
+                        <textarea id="user-input" name="user_message" placeholder="Type in your response... Be as expressive as you like" rows="1" required></textarea>
                         <button type="submit">Send</button>
                     </form>
                 </footer>
@@ -102,6 +102,14 @@
             const scrollToBottom = () => {
                 chatBox.scrollTop = chatBox.scrollHeight;
             };
+
+            if (userInput) {
+                    userInput.addEventListener('input', () => {
+                        userInput.style.height = 'auto'; // Reset height
+                        // Set the height to the scroll height to fit the content
+                        userInput.style.height = (userInput.scrollHeight) + 'px';
+                    });
+                }
 
             const addMessage = (sender, text) => {
                 const messageRow = document.createElement('div');

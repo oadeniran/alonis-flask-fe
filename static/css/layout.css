@@ -1,16 +1,57 @@
-body {
+/* 1. Base Setup for the entire window */
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden; /* Disables the main browser scrollbar */
     margin: 0;
     font-family: 'Inter', sans-serif;
-    background-color: #F8F9FA;
-}
-.app-container {
-    display: flex;
+    background-color: #F8F9FA; /* This is the base background */
+    position: relative; /* Establishes a positioning context */
 }
 
-/* Sidebar Styling */
+/* 2. The Decorative Blobs */
+body::before, body::after {
+    content: '';
+    position: fixed; /* Fixed position so they don't scroll */
+    z-index: 0;      /* Places them on a base layer, above the background color */
+    border-radius: 50%;
+    filter: blur(100px); /* Creates the soft, cloud-like effect */
+    opacity: 0.6;      /* Control the intensity */
+}
+
+/* Top-left purple blob */
+body::before {
+    width: 500px;
+    height: 500px;
+    top: -150px; /* Position it off-screen */
+    left: -150px;
+    background-color: #C7D2FE; /* A soft indigo/purple */
+}
+
+/* Bottom-right blue blob */
+body::after {
+    width: 600px;
+    height: 600px;
+    bottom: -200px; /* Position it off-screen */
+    right: -200px;
+    background-color: #BFDBFE; /* A soft blue */
+}
+
+/* 3. The Main App Container */
+.app-container {
+    position: relative; 
+    z-index: 1; /* CRITICAL: Lifts all app content above the z-index: 0 blobs */
+    display: flex;
+    height: 100%;
+    width: 100%;
+    /* App container itself must be see-through */
+    background: transparent; 
+}
+
+/* 4. Sidebar: Fixed width, never scrolls */
 .sidebar {
-    width: 90px; /* Default collapsed width */
-    height: 100vh;
+    width: 90px;
+    height: 100%;
     background-color: #FFFFFF;
     border-right: 1px solid #E5E7EB;
     display: flex;
@@ -18,7 +59,9 @@ body {
     padding: 25px 0;
     box-sizing: border-box;
     transition: width 0.3s ease;
+    flex-shrink: 0; /* Prevents it from shrinking */
 }
+
 .sidebar-logo {
     font-size: 28px;
     color: #4F46E5;
@@ -77,6 +120,38 @@ body {
     margin-top: auto; /* Pushes footer to the bottom */
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-profile-icon {
+    font-size: 32px;
+    color: #6B7280;
+}
+
+/* Buttons */
+.btn {
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    border: 1px solid transparent;
+}
+
+.btn-primary {
+    background-color: #111827;
+    color: #FFF;
+}
+
+.btn-secondary {
+    background-color: #FFFFFF;
+    color: #1F2937;
+    border-color: #D1D5DB;
+}
+
 /* --- Expanded Sidebar State --- */
 .app-container.sidebar-expanded .sidebar {
     width: 300px;
@@ -96,13 +171,21 @@ body {
     transform: rotate(180deg); /* Rotate the arrow icon */
 }
 
+.page-content.full-screen {
+    padding: 0;
+}
+
 
 /* Main Content Styling */
 .main-content {
-    flex-grow: 1;
-    height: 100vh;
-    overflow-y: auto;
+    flex-grow: 1; /* Takes up the remaining space */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* This is the ONLY vertical scrollbar */
+    overflow-x: hidden; /* Prevents any horizontal scroll */
 }
+
 .main-header {
     display: flex;
     justify-content: space-between;
@@ -110,6 +193,7 @@ body {
     padding: 20px 40px;
     background-color: #FFFFFF;
     border-bottom: 1px solid #E5E7EB;
+    flex-shrink: 0;
 }
 .header-title {
     font-size: 28px;
@@ -121,12 +205,20 @@ body {
     font-size: 45px;
     color: #6B7280;
 }
+
 .page-content {
     padding: 40px;
+    flex-grow: 1; /* This tells it to fill all available vertical space */
+    display: flex;
+    flex-direction: column;
 }
 
 /* --- Mobile Responsiveness --- */
 @media (max-width: 768px) {
+    .page-content {
+        padding: 0; /* Or even 0 for a true full-screen chat */
+    }
+
     /* Make the sidebar slightly narrower on tablets/phones */
     .sidebar {
         width: 70px;

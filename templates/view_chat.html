@@ -17,7 +17,7 @@
                 
                 {% for message in messages %}
                     {# Skip any messages that are empty #}
-                    {% if clean_message in message and message.clean_message.strip() %}
+                    {% if message.clean_message.strip() %}
                         <div class="message-row" data-sender="{{ 'user' if message.type == 'user' else 'ai' }}">
                             <div class="bubble">{{ message.clean_message }}</div>
                         </div>

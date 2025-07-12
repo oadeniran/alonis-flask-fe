@@ -8,34 +8,35 @@
 
 {% block content %}
 
-    <div class="chat-wrapper">
-
-        <div class="chat-wrapper">
-            <div class="chat-container">
-                <header class="chat-header">
-                    <h2>AI Chat</h2>
-                    <p>Ask me anything!</p>
-                </header>
-                <main class="chat-box" id="chat-box">
-                    <div class="initial-loader" id="initial-loader">
+        <div class="chat-container">
+            <header class="chat-header">
+                <div>
+                    <h2>Alonis Chat</h2>
+                    <p>Let's talk about anything and Everything!</p>
+                </div>
+                <a href="{{ url_for('new_chat') }}" class="new-chat-btn-header" title="Start a New Chat">
+                    <i class="fas fa-plus"></i>
+                </a>
+            </header>
+            <main class="chat-box" id="chat-box">
+                <div class="initial-loader" id="initial-loader">
+                    <div class="dot-flashing"></div>
+                </div>
+                <div class="message-row" data-sender="ai" id="thinking-bubble" style="display: none;">
+                    <div class="bubble">
                         <div class="dot-flashing"></div>
                     </div>
-                    <div class="message-row" data-sender="ai" id="thinking-bubble" style="display: none;">
-                        <div class="bubble">
-                            <div class="dot-flashing"></div>
-                        </div>
-                    </div>
-                </main>
-                <footer class="chat-input-area">
-                    <form id="chat-form" action="{{ url_for('chat_page') }}" method="POST">
-                        <input type="text" id="user-input" name="user_message" placeholder="Type a message..." autocomplete="off" required>
-                        <button type="submit">Send</button>
-                    </form>
-                </footer>
-            </div>
+                </div>
+            </main>
+            <footer class="chat-input-area">
+                <form id="chat-form" action="{{ url_for('chat_page') }}" method="POST">
+                    <textarea id="user-input" name="user_message" placeholder="Type a message..." rows="1" required></textarea>
+                    <button type="submit">Send</button>
+                </form>
+            </footer>
         </div>
 
-        <a href="{{ url_for('new_chat') }}" class="new-chat-btn" title="Start a New Chat">
+        <a href="{{ url_for('new_chat') }}" class="new-chat-btn-desktop" title="Start a New Chat">
             <i class="fas fa-plus"></i>
             <span class="btn-text">
                 Start a fresh session
@@ -58,6 +59,25 @@
                         chatBox.scrollTop = chatBox.scrollHeight;
                     }, 50);
                 };
+
+                if (userInput) {
+                    userInput.addEventListener('input', () => {
+                        userInput.style.height = 'auto'; // Reset height
+                        // Set the height to the scroll height to fit the content
+                        userInput.style.height = (userInput.scrollHeight) + 'px';
+                    });
+                }
+                // Add this listener for "Enter to Send" functionality
+                // if (userInput) {
+                //     userInput.addEventListener('keydown', (event) => {
+                //         // Check if Enter was pressed WITHOUT the Shift key
+                //         if (event.key === 'Enter' && !event.shiftKey) {
+                //             event.preventDefault(); // Stop a new line from being added
+                //             // Manually trigger the form submission
+                //             document.getElementById('chat-form').requestSubmit();
+                //         }
+                //     });
+                // }
 
                 const addMessage = (sender, text) => {
                     const messageRow = document.createElement('div');

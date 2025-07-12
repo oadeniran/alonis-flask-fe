@@ -104,3 +104,11 @@ def mark_goal_as_achieved(uid, note_id):
     if response.status_code != 200:
         raise Exception(f"Error marking goal as achieved: {response.text[:300]}")
     return response.json()
+
+def get_daily_quotes(uid):
+    url = API_BASE_URL + f'/talk/{uid}/personalized-quote'
+    response = requests.get(url)
+    print(f"API Response: {response.status_code} - {response.text[:300]}")
+    if response.status_code != 200:
+        raise Exception(f"Error fetching daily quotes: {response.text[:300]}")
+    return response.json()

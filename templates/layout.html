@@ -11,10 +11,17 @@
 </head>
 <body>
     <div class="app-container"> <aside class="sidebar">
-            <a href="{{ url_for('home_page') }}" class="sidebar-logo">
-                <i class="fas fa-home"></i>
-                <span class="logo-text">Alonis</span>
-            </a>
+            {% if session['user_data'] %}
+                <a href="{{ url_for('home_page') }}" class="sidebar-logo">
+                    <i class="fas fa-home"></i>
+                    <span class="logo-text">Alonis</span>
+                </a>
+            {% else %}
+                <a href="{{ url_for('home') }}" class="sidebar-logo">
+                    <i class="fas fa-home"></i>
+                    <span class="logo-text">Alonis</span>
+                </a>
+            {% endif %}
             <nav class="sidebar-nav">
                 <a href="javascript:history.back()" class="nav-link" title="Go back to previous page">
                     <i class="fas fa-arrow-left"></i> 
@@ -42,29 +49,40 @@
                     <i class="fas fa-magic"></i>
                     <span class="link-text">Recommendations</span>
                 </a>
+                <a href="{{ url_for('about_page') }}" class="nav-link" title="About">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="link-text">About</span>
+                </a>
             </nav>
             <div class="sidebar-footer">
                 <button class="nav-link" id="sidebar-expander" title="Toggle Menu">
                     <i class="fas fa-chevron-right"></i>
                 </button>
-                <a href="{{ url_for('logout') }}" class="nav-link logout" title="Logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span class="link-text">Logout</span>
-                </a>
+                {% if session['user_data'] %}
+                    <a href="{{ url_for('logout') }}" class="nav-link logout" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="link-text">Logout</span>
+                    </a>
+                {% endif %}
             </div>
         </aside>
 
         <main class="main-content">
             <header class="main-header">
                 <h1 class="header-title">Alonis</h1>
-                <div class="user-profile">
-                    <a href="{{ url_for('profile_page') }}">
-                        <i class="fas fa-user-circle"></i>
-                    </a>
+                <div class="header-actions">
+                    {% if session['user_data'] %}
+                        <a href="{{ url_for('profile_page') }}" class="user-profile-icon">
+                            <i class="fas fa-user-circle"></i>
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
+                        <a href="{{ url_for('signup') }}" class="btn btn-primary">Sign Up</a>
+                    {% endif %}
                 </div>
             </header>
             
-            <div class="page-content">
+            <div class="page-content {% block page_class %}{% endblock %}">
                 {% block content %}{% endblock %}
             </div>
         </main>

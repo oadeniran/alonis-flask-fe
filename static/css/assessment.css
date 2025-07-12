@@ -34,6 +34,8 @@ html, body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+
+    margin: 40px auto;
 }
 
 /* Header */
@@ -64,6 +66,8 @@ html, body {
     display: flex;
     flex-direction: column;
     gap: 15px;
+
+    padding-bottom: 50px; /* Space for the input area */
 }
 
 .message-row {
@@ -111,14 +115,20 @@ html, body {
     gap: 10px;
 }
 
-.chat-input-area input {
+.chat-input-area textarea {
     flex-grow: 1;
     border: 1px solid #D1D5DB;
     border-radius: 10px;
     padding: 12px 16px;
     font-size: 16px;
+    font-family: 'Inter', sans-serif; /* Ensure it uses the same font */
+
+    /* New properties for a better textarea experience */
+    resize: none; /* Hide the ugly resize handle */
+    overflow-y: auto; /* Add a scrollbar if the text gets too long */
+    line-height: 1.5;
 }
-.chat-input-area input:focus {
+.chat-input-area textarea:focus {
     outline: none;
     border-color: #4F46E5;
 }
@@ -409,15 +419,41 @@ html, body {
     cursor: pointer;
 }
 
+.new-chat-btn-desktop {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    height: 60px;
+    width: 60px; /* Default collapsed width */
+    background-color: #4F46E5;
+    border-radius: 30px;
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+    
+    /* Flexbox setup for alignment */
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center icon when collapsed */
+    
+    /* Animation & Text Handling */
+    transition: all 0.3s ease-in-out;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* New Chat Button - Hidden state default*/
+.new-chat-btn-header {
+    display: none;
+}
+
 /* Icon Styling */
-.new-chat-btn i {
+.new-chat-btn-desktop i {
     font-size: 24px;
     color: #FFFFFF;
     flex-shrink: 0; /* Prevents the icon from being squished */
 }
 
 /* Text Styling (Completely hidden by default) */
-.new-chat-btn .btn-text {
+.new-chat-btn-desktop .btn-text {
     font-size: 16px;
     font-weight: 600;
     color: #FFFFFF;
@@ -429,7 +465,7 @@ html, body {
     max-width: 0;
 }
 
-.new-chat-btn .btn-text small {
+.new-chat-btn-desktop .btn-text small {
     display: block;
     font-weight: 400;
     font-size: 13px;
@@ -437,14 +473,14 @@ html, body {
 }
 
 /* --- The Expanded State on Hover --- */
-.new-chat-btn:hover {
+.new-chat-btn-desktop:hover {
     width: 350px; /* Expanded width */
     justify-content: flex-start; /* Aligns content to the left */
     padding: 0 18px; /* Padding for the icon */
 }
 
 /* Make text visible on hover */
-.new-chat-btn:hover .btn-text {
+.new-chat-btn-desktop:hover .btn-text {
     opacity: 1;
     max-width: 300px; /* Allow the text to take up space */
     transition: opacity 0.2s ease 0.1s, max-width 0.2s ease 0.1s; /* Fade/slide in after button expands */
@@ -505,4 +541,41 @@ html, body {
   50%, 100% {
     background-color: rgba(79, 70, 229, 0.2);
   }
+}
+
+
+/* --- Mobile Responsiveness for Chat Pages --- */
+@media (max-width: 768px) {
+    /* HIDE the floating desktop button on mobile */
+    .new-chat-btn-desktop {
+        display: none;
+    }
+
+    /* SHOW the header button on mobile */
+    .new-chat-btn-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 22px;
+        color: #4F46E5;
+    }
+
+    /* Make the header a flex container to position the new button */
+    .chat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+    }
+
+    /* Add padding to the bottom of the message list to make space for the button and the input area */
+    .chat-box {
+        padding-bottom: 90px;
+    }
+
+    /* Make the input area slightly more compact */
+    .chat-input-area {
+        padding: 10px 15px;
+    }
 }

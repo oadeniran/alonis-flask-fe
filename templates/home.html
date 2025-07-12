@@ -24,9 +24,9 @@
         <main class="main-content">
             <section class="welcome-banner">
                 <div class="welcome-text">
-                    <h1>Welcome {{ user_name }}, {{ greeting }}</h1>
-                    <h2>Alonis Here</h2>
-                    <p>What can I do for you?</p>
+                    <h1>{{ greeting_text }}</h1>
+                    <h2>{{ intro_text }}</h2>
+                    <p>{{ cta_text }}</p>
                 </div>
             </section>
 
@@ -58,42 +58,19 @@
 
            <section class="recommendations">
                 <h3>Recommendations</h3>
-                <div class="cards-container">
-                    
-                    {% for rec in recommendations[:5] %}
-                        <div class="recommendation-card">
-                            <h4>{{ rec.title }}</h4>
-                            <p>{{ rec.details }}</p>
-                        </div>
-                        {% else %}
-                         <div class="empty-state-prompt">
-                            <i class="fas fa-magic"></i>
-                            <h4>Your Recommendations will appear here</h4>
-                            <p>
-                                The more you interact with me, the better I'll get at tailoring recommendations for you.
-                                You can start by jotting down a quick note — maybe a random thought or your goals for the next 3 months.
-                                Want deeper insights? Take a quick personality test or explore the MindLens feature.
-                                Feeling spontaneous? Drop into the Talk Session chat and share whatever's on your mind.
-                                Check back anytime — the more you share, the more I can support you.
-                            </p>
-                        </div>
-                    {% endfor %}
-                    {% if recommendations|length > 1 %}
-                        <a href="{{ url_for('recommendations_page') }}" class="view-more-card">
-                            <span>View More</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
-                    {% endif %}
-
+                <div class="cards-container" id="recommendations-container">
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
                 </div>
             </section>
 
-            {% if quote %}
-                <section class="quote-section">
-                    <blockquote>"{{ quote.text }}"</blockquote>
-                    <p class="author">- {{ quote.author }}</p>
-                </section>
-            {% endif %}
+
+            <section class="quote-section" id="quote-container">
+                <div class="skeleton-quote"></div>
+            </section>
+
+            <script src="{{ url_for('static', filename='js/home_loader.js') }}"></script>
 
         </main>
     </div>

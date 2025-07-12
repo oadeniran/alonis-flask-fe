@@ -1,20 +1,33 @@
 from flask import Flask, render_template, url_for, request, redirect, session, jsonify
+from flask_session import Session
 import api_calls
 import markdown
 import textwrap
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from math import ceil
+import random
+import content_markdowns
 
 app = Flask(__name__)
 app.secret_key = "random_secret_key"  # Change this to a secure key in production
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_DIR'] = './flask_session'
+app.config['SESSION_PERMANENT'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+app.config['SESSION_FILE_THRESHOLD'] = 500  # max number of session files before it starts cleaning
 
 @app.route('/')
 def home():
+    if 'user_data' in session:
+        return redirect(url_for('home_page'))
     return render_template('index.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    if 'user_data' in session:
+        return redirect(url_for('home_page'))
+    
     if request.method == 'POST':
         # Handle the form data
         email = request.form.get('email')
@@ -70,6 +83,8 @@ def signup():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if 'user_data' in session:
+        return redirect(url_for('home_page'))
     if request.method == 'POST':
         login_identifier = request.form.get('login_identifier')
         password = request.form.get('password')
@@ -101,7 +116,8 @@ def login():
             'username': response.get('username'),
             'alonis_verbosity': response.get('alonis_verbosity', 0),  # Default to 50 if not provided
             'short_bio': response.get('short_bio', ''),
-            "user_id": response.get('uid')
+            "user_id": response.get('uid'),
+            'is_login_flow': True  # flag to indicate successful login
         }
         session.modified = True  # Mark the session as modified
         
@@ -110,56 +126,102 @@ def login():
     # For a GET request, just display the login page
     return render_template('login.html')
 
-@app.route('/app-home')
+@app.route('/api/recommendations')
+def api_recommendations():
+    try:
+        # Your logic to get recommendations from an API would go here
+        recommendations_from_api = [
+            {'title': 'Practice Mindfulness', 'details': 'Take 5 minutes to focus on your breath.'},
+            {'title': 'Connect with a Friend', 'details': 'Reach out to someone you trust for a quick chat.'},
+            {'title': 'Start a Gratitude List', 'details': 'Write down three things you are grateful for today.'},
+            {'title': 'Plan Your Day', 'details': 'Organizing your tasks can provide a sense of control.'},
+            {'title': 'Go for a Short Walk', 'details': 'A brief walk outside can boost your mood.'},
+        ]
+        return jsonify({'recommendations': recommendations_from_api})
+    except Exception as e:
+        return jsonify({'error': 'Could not load recommendations.'}), 500
+    
+@app.route('/api/quote')
+def api_quote():    
+    try:
+        # Fetch the quote of the day
+        if 'quote_of_day' not in session:
+            quote_of_the_day = api_calls.get_daily_quotes(
+                session.get('user_data', {}).get('user_id', '')
+            ).get('quote', {'quote': "Stay positive!", "author": "Alonis"})
+            session['quote_of_day'] = quote_of_the_day
+        else:
+            quote_of_the_day = session['quote_of_day']
+
+        # Return all the data together as JSON
+        return jsonify({
+            'quote': quote_of_the_day
+        })
+    except Exception as e:
+        print(f"API Error in home_data: {e}")
+        return jsonify({'error': 'Could not load data.'}), 500
+
+@app.route('/home')
 def home_page():
-
     if 'user_data' not in session:
-        # Means User is not logged in, redirect to login
         return redirect(url_for('login'))
-    
-    # Get the current time to determine greeting
-    current_hour = datetime.now().hour
 
-    if 5 <= current_hour < 12:
-        greeting =  "Good morning"
-    elif 12 <= current_hour < 17:
-        greeting =  "Good afternoon"
-    elif 17 <= current_hour < 21:
-        greeting =  "Good evening"
-    else:
-        greeting =  "Hope your night is going well"
-    
-    user_name = session['user_data']['username']
+    username = session['user_data']['username']
+    is_login_flow = session.get('user_data', {}).get('is_login_flow', False)
 
-    # --- SIMULATED API RESPONSE ---
-    # In a real app, you would make an API call here.
-    # We create a sample list with 7 items to test the "View More" logic.
-    recommendations_from_api = [
-        # {'title': 'Practice Mindfulness', 'details': 'Take 5 minutes to focus on your breath. This can help reduce stress and improve clarity.'},
-        # {'title': 'Connect with a Friend', 'details': 'Reach out to someone you trust for a quick chat. Social connection is vital for well-being.'},
-        # {'title': 'Start a Gratitude List', 'details': 'Write down three things you are grateful for today, no matter how small.'},
-        # {'title': 'Plan Your Day', 'details': 'Organizing your tasks can provide a sense of control and accomplishment.'},
-        # {'title': 'Go for a Short Walk', 'details': 'A brief walk outside can boost your mood and energy levels.'},
-        # {'title': 'Explore a New Topic', 'details': 'Learning something new can be a great source of inspiration and motivation.'},
-        # {'title': 'Listen to Calming Music', 'details': 'Create a playlist of soothing music to help you relax and unwind.'}
+    welcome_texts = [
+        "Welcome back", "Nice to see you again", "Glad you're here", "You're back!",
+        "Hello again", "Welcome, friend", "Look who's here!",
+        "Good to have you back", "Happy to see you again"
+    ] if is_login_flow else [
+        "Welcome", "Hello there", "Hi, welcome!", "Nice to meet you",
+        "Hey! Good to have you", "Hello and welcome", "Greetings",
+        "Glad you’re here", "Welcome aboard", "Welcome, explorer"
     ]
-    # -----------------------------
+    welcome_text = random.choice(welcome_texts)
 
-    quote_of_the_day = {
-        'text': 'The secret of getting ahead is getting started.',
-        'author': 'Mark Twain'
-    }
+    # Time-based greeting
+    current_hour = datetime.now().hour
+    if 5 <= current_hour < 12:
+        time_greetings = ["Good morning", "Morning sunshine", "Rise and shine", "Top of the morning", "A fresh start", "Early bird!", "New day, new ideas", "Let's make today count", "Wakey wakey", "Hello, morning star"]
+    elif 12 <= current_hour < 17:
+        time_greetings = ["Good afternoon", "Hope your day's going well", "Midday energy!", "Afternoon vibes", "You're halfway through!", "Sunny side up", "Keep going strong", "How’s the day so far?", "Let’s keep it moving", "Happy afternoon!"]
+    else:
+        time_greetings = ["Good evening", "Evening breeze", "Time to wind down", "Night mode: on", "Evening vibes", "How was your day?", "Relax and recharge", "Hello, night owl", "Dusk is here", "Unwind time"]
+
+    greeting = random.choice(time_greetings)
+
+    greeting_text = f"{welcome_text} {username}, {greeting}."
+
+    intro_variants = [
+        "Alonis here", "I'm Alonis", "This is Alonis", "You’re speaking with Alonis",
+        "Alonis checking in", "It’s me, Alonis", "Hello from Alonis", "Alonis at your service",
+        "Hey, it's Alonis", "Alonis — your AI companion"
+    ]
+    intro_text = random.choice(intro_variants)
+
+    cta_variants = [
+        "What can I do for you today?", "How can I assist you?", "Need something?", 
+        "Want to explore something?", "Got a task for me?", "Let’s get started", 
+        "What are we working on?", "Looking for help with something?", 
+        "Tell me what’s on your mind", "Ready when you are"
+    ]
+    cta_text = random.choice(cta_variants)
 
     return render_template(
         'home.html',
-        user_name=user_name,
-        greeting=greeting,
-        recommendations=recommendations_from_api,  # Pass the list to the template
-        quote =quote_of_the_day,
+        greeting_text=greeting_text,
+        intro_text=intro_text,
+        cta_text=cta_text,
+        recommendations=[],
+        quote={}
     )
 
 @app.route('/assessment/<assessment_type>', methods=['GET', 'POST'])
 def assessment_page(assessment_type):
+    if 'user_data' not in session:
+        # Means User is not logged in, redirect to login
+        return redirect(url_for('login'))
     # This part handles the background request from JavaScript
     if request.method == 'POST':
         if 'assessment' not in session:
@@ -289,6 +351,11 @@ def assessment_page(assessment_type):
 
 @app.route('/generate_report/<assessment_type>/<session_id>')
 def generate_report(assessment_type, session_id): 
+
+    if 'user_data' not in session:
+        # Means User is not logged in, redirect to login
+        return redirect(url_for('login'))
+    
     # --- API CALL ---
     assessment_result_object = api_calls.generate_assessment_results_report({
         'user_id': session.get('user_data', {}).get('user_id'),
@@ -328,6 +395,10 @@ def start_assessment(assessment_type):
 @app.route('/chat', methods=['GET', 'POST'])
 def chat_page():
 
+    if 'user_data' not in session:
+        # Means User is not logged in, redirect to login
+        return redirect(url_for('login'))
+
     # Handle POST request (when user sends a message)
     if request.method == 'POST':
         user_message = request.json.get('message') # Get message from JSON
@@ -351,7 +422,7 @@ def chat_page():
 
 
     # On a GET request, just render since we have an init chat route
-    return render_template('chat.html', messages=[])
+    return render_template('chat.html', messages=session.get('talk_session', {}).get('messages', []))
 
 @app.route('/new_chat')
 def new_chat():
@@ -387,6 +458,10 @@ def api_init_chat():
 
 @app.route('/notes', methods=['GET', 'POST'])
 def notes_page():
+    if 'user_data' not in session:
+        # Means User is not logged in, redirect to login
+        return redirect(url_for('login'))
+    
     # Initialize notes in session if not present
     if 'notes' not in session:
         user_notes_obj = api_calls.get_user_notes_and_goals(
@@ -531,6 +606,11 @@ def delete_note(note_id):
 
 @app.route('/recommendations')
 def recommendations_page():
+
+    if 'user_data' not in session:
+        # Means User is not logged in, redirect to login
+        return redirect(url_for('login'))
+    
     # --- SIMULATED API RESPONSES ---
     movies_data = [
         # {'title': 'Inception', 'year': '2010', 'description': 'A mind-bending thriller about stealing information by entering people\'s dreams.'},
@@ -616,6 +696,12 @@ def profile_page():
 
 @app.route('/report/<session_id>')
 def report_page(session_id):
+
+    if 'user_data' not in session:
+        # Means User is not logged in, redirect to login
+        return redirect(url_for('login'))
+    
+
     if 'assessment' in session and session['assessment'].get('session_id') == session_id and 'report_text' in session['assessment']:
         # If the report text is already in the session, use it
         report_text = session['assessment']['report_text']
@@ -635,6 +721,10 @@ def report_page(session_id):
 
 @app.route('/view_chat/<session_id>')
 def view_chat_page(session_id):
+
+    if 'user_data' not in session:
+        # Means User is not logged in, redirect to login
+        return redirect(url_for('login'))
     
     chat_history = api_calls.get_session_chat_messages(
         user_id=session.get('user_data', {}).get('user_id'),
@@ -643,6 +733,57 @@ def view_chat_page(session_id):
     messages = chat_history.get('messages', [])
 
     return render_template('view_chat.html', messages=messages, title=f"Chat History - {session_id}")
+
+@app.route('/about')
+def about_page():
+    # New data structure with summary and full markdown content
+    about_sections = [
+        {
+            'id': 'personality-test',
+            'title': 'Personality Assessment',
+            'summary': "I'm Alonis — your AI companion designed to understand you through natural conversation.I use the Big Five Personality Model to gently uncover insights about your traits, goals, and emotional patterns. Together, we'll explore who you are — not with judgment, but with curiosity, care, and depth.",
+            'content_md': content_markdowns.PERSONALITY_TEST_MD,
+            'icon': 'fas fa-user-check'
+        },
+        {
+            'id': 'mindlab',
+            'title': 'MindLab',
+            'summary': "MindLab is your private space to reflect on how you're really feeling. I gently analyze emotional patterns in your conversations to support self-awareness and clarity. No judgment — just insight, presence, and a safe place to explore your well-being.",
+            'content_md': content_markdowns.MINDLAB_MD,
+            'icon': 'fas fa-brain'
+        },
+        {
+            'id': 'alonis-chat',
+            'title': 'Alonis Chat',
+            'summary': "I'm not just a chatbot — I remember your story and adapt to support you personally. By keeping track of your past conversations, notes, and goals, I offer relevant and thoughtful insights. Everything I retain is used only to help you — never for any outside purpose",
+            'content_md': content_markdowns.ALONIS_CHAT_MD,
+            'icon': 'fas fa-comments'
+        },
+        {
+            'id' : 'notes-and-goals',
+            'title': 'Notes and Goals',
+            'summary': "This is your private space to write, reflect, and track progress at your own pace. Set meaningful goals, revisit your thoughts, and celebrate every milestone you reach. Together, we'll turn quiet reflections into confident forward steps.",
+            'content_md': content_markdowns.NOTES_AND_GOALS_MD,
+            'icon': 'fas fa-clipboard-list' 
+        },
+        {
+            'id': 'recommendations',
+            'title': 'Recommendations',
+            'summary': "I provide handpicked recommendations tailored to your goals, personality, and emotional needs. From articles to activities, each suggestion is chosen to support your growth and well-being. Think of me as your personal guide — offering the right nudge, at the right time.",
+            'content_md': content_markdowns.RECOMMENDATIONS_MD,
+            'icon': 'fas fa-star'
+        }
+    ]
+
+    # Pre-process the markdown content into HTML
+    for section in about_sections:
+        section['content_html'] = markdown.markdown(textwrap.dedent(section['content_md']))
+
+    return render_template(
+        'about.html', 
+        sections=about_sections
+
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)
