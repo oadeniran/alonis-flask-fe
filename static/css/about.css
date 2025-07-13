@@ -1,33 +1,33 @@
-
+/* Main Page Header */
 .about-header {
+    max-width: 900px;
+    margin: 0 auto 40px auto;
     text-align: center;
-    padding-bottom: 30px;
-    margin-bottom: 40px;
+    padding: 0 20px;
 }
 .about-header h1 { font-size: 36px; margin: 0; }
 .about-header p { font-size: 18px; color: #6B7280; margin-top: 10px; }
 
-/* Accordion Styling */
-.accordion-container {
+/* Accordion Item Styling */
+.feature-explainer {
     max-width: 900px;
     margin: 0 auto;
+    background-color: transparent;
+    border-bottom: 1px solid #E5E7EB;
 }
-.feature-explainer {
-    background-color: transparent; /* Make the card background transparent */
-    border: none; /* Remove the outer border */
-    border-bottom: 1px solid #E5E7EB; /* Use a bottom border to separate items */
-    margin-bottom: 0;
-    border-radius: 0;
-}
-.feature-header {
-    display: flex;
-    align-items: center; /* Vertically align icon and text */
-    gap: 20px; /* Space between icon and text */
-    padding: 30px 10px; /* More vertical padding */
-    cursor: pointer;
+.feature-explainer:first-of-type {
+    border-top: 1px solid #E5E7EB;
 }
 
-/* New Icon Styling */
+.feature-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 30px 10px;
+    cursor: pointer;
+    position: relative; /* Needed for mobile icon positioning */
+}
+
 .feature-icon {
     flex-shrink: 0;
     width: 50px;
@@ -36,69 +36,75 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #EEF2FF; /* Light purple background */
-    color: #4F46E5; /* Main purple icon color */
+    background-color: #EEF2FF;
+    color: #4F46E5;
     font-size: 20px;
 }
 
-/* Title and Summary with more space */
 .feature-title {
     flex-grow: 1;
+    min-width: 0; /* Allows text container to shrink and wrap */
 }
 .feature-title h3 { margin: 0 0 8px 0; font-size: 20px; color: #111827; }
-.feature-title p { margin: 0; color: #6B7280; }
+.feature-title p {
+    color: #6B7280;
+    line-height: 1.6;
+    margin: 8px 0 0 0; /* Consistent margin for when it's visible */
+    overflow: hidden;  /* Important for the max-height animation */
+    
+    /* Define the default state for the animation */
+    opacity: 1;
+    max-height: 1000px; /* Give it a starting height, large enough for your text */
+    
+    /* Define the transition */
+    transition: all 0.3s ease-in-out;
+}
+
 
 .expand-icon {
+    margin-left: 15px;
     font-size: 18px;
     color: #9CA3AF;
     transition: transform 0.3s ease;
 }
 
-/* Content Styling (hidden by default) */
+/* Expanded Content */
 .feature-content {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.4s ease-in-out;
 }
 .content-inner {
-    padding: 0 10px 30px 80px; /* Indent content under the title */
+    padding: 0 10px 30px 80px; /* Desktop indentation */
 }
-.content-inner p, .content-inner li { font-size: 16px; line-height: 1.7; color: #374151; }
+.content-inner p, .content-inner li {
+    font-size: 16px;
+    line-height: 1.7;
+    color: #374151;
+    overflow-wrap: break-word; /* Ensures long words wrap */
+}
 .content-inner ul { padding-left: 20px; }
+
 
 /* Expanded State Styling */
 .feature-explainer.expanded .expand-icon {
     transform: rotate(180deg);
 }
 .feature-explainer.expanded .feature-content {
-    max-height: 1000px;
+    /* Use a large value to ensure it always fits the content */
+    max-height: 5000px; 
 }
-
-/* Give the summary a smooth transition */
-.feature-title p {
-    transition: all 0.3s ease-in-out;
-    max-height: 100px; /* Give it a large default max-height */
-    opacity: 1;
-    margin-top: 5px; /* Adds space between title and summary */
-}
-
-/* When the section is expanded, hide the summary */
 .feature-explainer.expanded .feature-title p {
     max-height: 0;
     opacity: 0;
-    margin-top: 0; /* Remove the margin when hidden */
-    overflow: hidden;
+    margin: 0; /* Remove margin when hidden to fully collapse the space */
 }
-
-/* Adjust the main title's margin for a better look when summary is hidden */
-.feature-explainer.expanded .feature-title h3 {
-    margin-bottom: 0;
-}
-
 
 /* Branding Footer Styling */
 .branding-footer {
     margin-top: 80px;
+    margin-left: 0;
+    margin-right: 0;
     padding: 60px 20px;
     background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
 }
@@ -106,34 +112,18 @@
 .login-branding strong { font-size: 60px; font-weight: 800; color: #D1D5DB; text-align: right; padding-right: 15px; }
 .login-branding span { font-size: 28px; font-weight: 500; color: #9CA3AF; }
 
-.feature-title {
-    flex-grow: 1;
-    min-width: 0; /* This is the main fix to prevent text from being cut off */
-}
-
-/* For tablets and larger phones (up to 768px) */
+/* --- Responsive --- */
 @media (max-width: 768px) {
-    .feature-header {
-        gap: 15px; /* Reduce gap between icon and text */
-    }
     .content-inner {
-        padding: 0 10px 30px 75px; /* Adjust indentation */
+        padding-left: 75px;
     }
 }
 
-/* For extra-small phones (480px and below) */
 @media (max-width: 480px) {
     .feature-header {
-        flex-direction: column; /* Stack the icon, title, and arrow vertically */
         align-items: flex-start;
     }
-
-    .expand-icon {
-        align-self: flex-end; /* Move arrow to the bottom right */
-        margin-top: 10px;
-    }
-
     .content-inner {
-        padding-left: 25px; /* Remove the large left indent */
+        padding-left: 25px;
     }
 }

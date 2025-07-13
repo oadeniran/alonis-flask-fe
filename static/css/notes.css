@@ -2,17 +2,28 @@
 body { margin: 0; font-family: 'Inter', sans-serif; background-color: #F8F9FA; }
 
 /* Page Wrapper & Header */
-.notes-wrapper { max-width: 1200px; margin: 0 auto; padding: 40px; margin: 0 auto; width: 100%;}
+.notes-wrapper { max-width: 1200px; margin: 0 auto; padding: 40px;}
 .notes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-.notes-header h1 { font-size: 36px; color: #1F2937; }
+.notes-header h1 { font-size: 36px; color: #1F2937; margin: 0; }
 
 /* Notes Grid */
-.notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px;}
+.notes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px;}
 
 /* Note Card Styling */
-.note-card { background-color: #FFFFFF; border-radius: 12px; padding: 25px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; }
-.note-card h3 { margin: 0 0 10px 0; color: #111827; }
-.note-card p { margin: 0; color: #4B5563; line-height: 1.6; flex-grow: 1; } /* Allows text to take up space */
+.note-card {
+    background-color: #FFFFFF;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.07);
+    border: 1px solid #E5E7EB;
+    
+    /* NEW METHOD: Make the card itself a grid with 3 rows */
+    display: grid;
+    grid-template-rows: auto 1fr auto; /* Header/Title, Expanding Content, Footer */
+    gap: 15px; /* Creates space between the card sections */
+}
+.note-card h3 { margin: 0 0 10px 0; color: #111827; font-weight: 600; }
+.note-card p { color: #4B5563;font-weight: 400;}
 
 /* New: Card Header & Footer */
 .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
@@ -209,38 +220,34 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: #F8F9FA; }
     color: #9CA3AF;
 }
 
-/* For tablets and larger phones (up to 768px) */
-@media (max-width: 768px) {
-    .notes-wrapper {
-        padding: 20px;
-    }
-
-    .notes-header h1 {
-        font-size: 28px;
-    }
-
-    /* Change grid to 2 columns */
+/* For Very Wide Screens (e.g., large monitors) */
+@media (min-width: 1600px) {
     .notes-grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 15px;
-    }
-
-    .note-card {
-        padding: 20px;
+        grid-template-columns: repeat(4, 1fr);
     }
 }
 
-/* For extra-small phones (480px and below) */
-@media (max-width: 480px) {
-    /* Stack the header items only on the smallest screens */
+/* For Tablets */
+@media (max-width: 992px) {
+    .notes-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* For Mobile Phones */
+@media (max-width: 600px) {
+    .notes-wrapper {
+        padding: 20px;
+    }
     .notes-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 15px;
+        gap: 20px;
     }
-
-    /* Change grid to a single column */
+    .notes-header h1 {
+        font-size: 28px;
+    }
     .notes-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* Single column for phones */
     }
 }
