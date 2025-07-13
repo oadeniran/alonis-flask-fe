@@ -16,10 +16,9 @@
             <main class="chat-box" id="chat-box">
                 
                 {% for message in messages %}
-                    {# This condition now checks if clean_message exists AND is not empty #}
+                    {# This condition checks if clean_message exists AND is not empty #}
                     {% set message_text = message.clean_message if 'clean_message' in message and message.clean_message and message.clean_message.strip() else message.message %}
 
-                    {# The rest of the logic remains the same #}
                     {% if message_text and message_text.strip() %}
                         <div class="message-row" data-sender="{{ 'user' if message.type == 'user' else 'ai' }}">
                             <div class="bubble">{{ message_text }}</div>

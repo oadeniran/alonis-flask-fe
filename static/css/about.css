@@ -111,20 +111,29 @@
     min-width: 0; /* This is the main fix to prevent text from being cut off */
 }
 
+/* For tablets and larger phones (up to 768px) */
+@media (max-width: 768px) {
+    .feature-header {
+        gap: 15px; /* Reduce gap between icon and text */
+    }
+    .content-inner {
+        padding: 0 10px 30px 75px; /* Adjust indentation */
+    }
+}
+
+/* For extra-small phones (480px and below) */
 @media (max-width: 480px) {
     .feature-header {
         flex-direction: column; /* Stack the icon, title, and arrow vertically */
-        align-items: flex-start; /* Align everything to the left */
+        align-items: flex-start;
     }
 
     .expand-icon {
-        /* Move the arrow to the bottom right of the stacked block */
-        align-self: flex-end;
+        align-self: flex-end; /* Move arrow to the bottom right */
         margin-top: 10px;
     }
 
     .content-inner {
-        /* Remove the large left indent on very small screens */
-        padding-left: 25px;
+        padding-left: 25px; /* Remove the large left indent */
     }
 }
