@@ -20,9 +20,9 @@ body {
 
 /* Page Wrapper & Header */
 .rec-wrapper {
-    max-width: 1200px;
+    max-width: 2200px;
     margin: 0 auto;
-    padding: 100px 40px 40px 40px;
+    padding: 40px;
 }
 
 .rec-header {
@@ -60,14 +60,22 @@ body {
     margin-bottom: 25px;
 }
 
-/* Items Grid */
+/* This turns the grid into a horizontally scrollable flex container */
 .items-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 25px;
+    display: flex;
+    overflow-x: auto; /* Enables horizontal scrolling */
+    gap: 20px;
+    padding: 10px 0 25px 0; /* Adds space for the scrollbar */
+
+    /* Hides the scrollbar for a cleaner look (but still scrollable) */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+.items-grid::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
 }
 
-/* New: Updated card styling */
+/* This gives each card a fixed width so they don't get squished */
 .item-card {
     background-color: #FFFFFF;
     border-radius: 16px;
@@ -75,6 +83,12 @@ body {
     box-shadow: 0 4px 20px rgba(31, 41, 55, 0.05);
     border: 1px solid #EAECEE;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    
+    /* Set a fixed base width for each card */
+    display: flex;
+    flex: 0 0 320px; 
+    position: relative; /* Needed for the menu */
+    flex-direction: column; /* This enables the equal height fix */
 }
 
 .item-card:hover {
@@ -93,6 +107,68 @@ body {
     margin: 0;
     color: #4B5563;
     line-height: 1.6;
+    flex-grow: 1; /* Allows the paragraph to take up available space */
+
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #F3F4F6; /* The subtle dividing line */
+}
+
+.menu-container {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+.menu-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #9CA3AF;
+    padding: 10px;
+    border-radius: 50%;
+}
+.menu-btn:hover { background-color: #F3F4F6; }
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 35px;
+    background-color: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    z-index: 10;
+    width: 160px; /* Wider for new option */
+}
+.dropdown-menu.active { display: block; }
+.dropdown-item { display: block; padding: 10px 15px; text-decoration: none; color: #374151; font-size: 14px; }
+.dropdown-item:hover { background-color: #F3F4F6; }
+.dropdown-item.action-btn { color: #16A34A; font-weight: 500; }
+
+/* Action Indicator Styling (like the 'Goal' tag) */
+.action-indicator {
+    background-color: transparent; 
+    color: #92400E;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+.action-indicator.achieved {
+    background-color: transparent; /* Light green */
+    color: #065F46;      /* Dark green */
+    cursor: default;     /* Add this: Changes the mouse pointer to the default arrow */
+    pointer-events: none;/* Add this: Makes the element ignore clicks */
+}
+
+.action-indicator.achieved .action-name {
+    background-color: #D1FAE5; /* Light green background */
+    padding: 2px 8px;
+    border-radius: 12px;
 }
 
 .empty-state-prompt {
@@ -104,6 +180,7 @@ body {
     padding: 50px 30px;
     text-align: center;
     box-sizing: border-box;
+    width: 100%; 
 }
 
 .empty-state-prompt i {
@@ -124,4 +201,207 @@ body {
     color: #6B7280;
     margin: 0;
     line-height: 1.6;
+}
+
+
+.load-more-container {
+    text-align: center;
+    margin-top: 20px;
+}
+.load-more-btn {
+    display: inline-block;
+    background-color: #4F46E5; /* Primary purple color */
+    color: #FFFFFF;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.load-more-btn:hover {
+    background-color: #4338CA; /* A slightly darker purple */
+    transform: translateY(-2px); /* Subtle lift effect */
+}
+
+/* This style will apply when the button is loading new items */
+.load-more-btn:disabled {
+    background-color: #A5B4FC;
+    cursor: not-allowed;
+    transform: translateY(0);
+}
+
+.end-of-list-message {
+    font-size: 14px;
+    font-style: italic;
+    color: #6B7280; /* A soft, medium grey */
+    padding: 10px;
+}
+
+
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(17, 24, 39, 0.6); display: none;
+    justify-content: center; align-items: center; z-index: 1000;
+}
+.modal-content {
+    background-color: #fff; padding: 30px 40px; border-radius: 16px;
+    width: 100%; max-width: 600px;
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    /* Add a border to separate it from the body */
+    border-bottom: 1px solid #E5E7EB;
+    
+    /* Adjust padding */
+    padding: 20px 30px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.card-meta {
+    font-style: italic;
+    color: #6B7280;
+    font-size: 14px;
+    margin: -5px 0 10px 0;
+    border-bottom: 3px;
+}
+
+
+.modal-meta {
+    font-size: 14px;
+    color: #6B7280;
+    font-style: italic;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #9CA3AF;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.close-btn:hover {
+    background-color: #F3F4F6;
+}
+.view-modal-body { padding-top: 15px; max-height: 70vh; overflow-y: auto; }
+.view-modal-body p { color: #4B5563; line-height: 1.7; white-space: pre-wrap; }
+.modal-footer {
+    padding: 20px 40px 10px;
+    margin-top: 10px;
+    border-top: 1px solid #F3F4F6;
+    text-align: right;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-action-btn {
+    border: none;
+    background-color: #16A34A;
+    color: #fff;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.modal-action-btn:hover {
+    background-color: #15803D;
+}
+
+.modal-action-btn.achieved {
+    background-color: #D1FAE5;
+    color: #065F46;
+    cursor: default;
+}
+
+/* Styles for the card footer and view more button */
+.item-card {
+    display: flex;
+    flex-direction: column;
+}
+.item-card p {
+    flex-grow: 1; /* Pushes footer to the bottom */
+}
+.card-footer {
+    margin-top: 15px;
+    text-align: right;
+}
+.view-more-btn {
+    background: none; border: none; color: #4F46E5;
+    font-weight: 600; font-size: 13px; cursor: pointer;
+    padding: 0; display: inline-flex; align-items: center; gap: 5px;
+}
+
+.skeleton-item-card {
+    background-color: #f3f4f6;
+    border-radius: 16px;
+    min-height: 120px; /* Adjust height as needed */
+    position: relative;
+    overflow: hidden;
+}
+
+.skeleton-item-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@media (max-width: 1600px) {
+    /* Switch from horizontal scroll to a 2-column grid */
+    .items-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        overflow-x: visible; /* Turn off horizontal scroll */
+    }
+
+    .item-card {
+        flex: 1 1 auto; /* Reset flex property for grid items */
+    }
+}
+
+/* Breakpoint 2: For Mobile Phones */
+@media (max-width: 600px) {
+    .rec-wrapper {
+        padding: 20px;
+    }
+    .rec-header h1 {
+        font-size: 32px;
+    }
+
+    /* Switch to a single column grid */
+    .items-grid {
+        grid-template-columns: 1fr;
+    }
 }

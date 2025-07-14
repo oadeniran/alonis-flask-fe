@@ -112,3 +112,19 @@ def get_daily_quotes(uid):
     if response.status_code != 200:
         raise Exception(f"Error fetching daily quotes: {response.text[:300]}")
     return response.json()
+
+def get_recommendations(uid, rec_type, page=1):
+    url = API_BASE_URL + f'/user/{uid}/alonis-recommendations/{rec_type}?page={page}'
+    response = requests.get(url)
+    print(f"API Response: {response.status_code} - {response.text[:300]}")
+    if response.status_code != 200:
+        raise Exception(f"Error fetching recommendations: {response.text[:300]}")
+    return response.json()
+
+def mark_user_interaction_with_recommendation(uid, rec_id):
+    url = API_BASE_URL + f'/user/{uid}/mark-interaction-with-recommendation/{rec_id}/'
+    response = requests.post(url)
+    print(f"API Response: {response.status_code} - {response.text[:300]}")
+    if response.status_code != 200:
+        raise Exception(f"Error marking recommendation interaction: {response.text[:300]}")
+    return response.json()

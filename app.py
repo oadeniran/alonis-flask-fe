@@ -126,20 +126,6 @@ def login():
     # For a GET request, just display the login page
     return render_template('login.html')
 
-@app.route('/api/recommendations')
-def api_recommendations():
-    try:
-        # Your logic to get recommendations from an API would go here
-        recommendations_from_api = [
-            # {'title': 'Practice Mindfulness', 'details': 'Take 5 minutes to focus on your breath.'},
-            # {'title': 'Connect with a Friend', 'details': 'Reach out to someone you trust for a quick chat.'},
-            # {'title': 'Start a Gratitude List', 'details': 'Write down three things you are grateful for today.'},
-            # {'title': 'Plan Your Day', 'details': 'Organizing your tasks can provide a sense of control.'},
-            # {'title': 'Go for a Short Walk', 'details': 'A brief walk outside can boost your mood.'},
-        ]
-        return jsonify({'recommendations': recommendations_from_api})
-    except Exception as e:
-        return jsonify({'error': 'Could not load recommendations.'}), 500
     
 @app.route('/api/quote')
 def api_quote():    
@@ -606,35 +592,137 @@ def delete_note(note_id):
 
 @app.route('/recommendations')
 def recommendations_page():
+    # This route now loads instantly, passing no data.
+    # JavaScript will fetch the data from the new API routes.
+    return render_template('recommendations.html')
 
-    if 'user_data' not in session:
-        # Means User is not logged in, redirect to login
-        return redirect(url_for('login'))
+@app.route('/api/recommendations/alonis')
+def api_alonis_recommendations():
+
+    page = request.args.get('page', 1, type=int)
+
+    try:
+        # Fetch the alonis recommendations from the API
+        api_data = api_calls.get_recommendations(
+            uid=session.get('user_data', {}).get('user_id', ''),
+            rec_type='alonis_recommendation',
+            page=page
+        )
+
+        rec_items = api_data.get('recommendations', [])
+        for item in rec_items:
+            if len(item.get('description', '')) > 100:
+                item['truncated_description'] = item['description'][:100] + '...'
+            else:
+                item['truncated_description'] = item['description']
+
+        return jsonify({
+            'items': rec_items,
+            'has_next_page': api_data.get('has_next_page', False)
+        })
+    except Exception as e:
+        print(f"API Error in alonis_recommendations: {e}")
+        return jsonify({'error': 'Could not load recommendations.'}), 500 
     
-    # --- SIMULATED API RESPONSES ---
-    movies_data = [
-        # {'title': 'Inception', 'year': '2010', 'description': 'A mind-bending thriller about stealing information by entering people\'s dreams.'},
-        # {'title': 'The Social Network', 'year': '2010', 'description': 'The story of the founding of Facebook and the ensuing legal battles.'},
-        # {'title': 'Parasite', 'year': '2019', 'description': 'A dark comedy thriller about class discrimination and greed.'}
-    ]
-    songs_data = [
-        # {'title': 'Blinding Lights', 'artist': 'The Weeknd'},
-        # {'title': 'As It Was', 'artist': 'Harry Styles'},
-        # {'title': 'Good 4 U', 'artist': 'Olivia Rodrigo'}
-    ]
-    news_data = [
-        # {'headline': 'Global Tech Summit Focuses on AI Ethics', 'source': 'Tech Chronicle'},
-        # {'headline': 'New Breakthroughs in Renewable Energy Storage', 'source': 'Science Today'},
-        # {'headline': 'The Rise of Remote Work and its Impact on Urban Economies', 'source': 'Economic Times'}
-    ]
-    # ---------------------------------
 
-    return render_template(
-        'recommendations.html',
-        movies=movies_data,
-        songs=songs_data,
-        news=news_data
+# 1. ADD a new API route for books
+@app.route('/api/recommendations/books')
+def api_books():
+    # In a real app, you would get this data from a database
+    all_books = [
+        {'id': f'b{i}', 
+        'title': f'The Art of Thinking Clearly #{i}',
+        'description': 'This book provides insights into cognitive biases and how they affect our decision-making. It offers practical advice on how to avoid these pitfalls in everyday life.'*random.randint(87, 120),
+        'author': 'Rolf Dobelli',
+        'action' : {'name': 'Watch', 'status': random.choice([True, False])}} 
+        for i in range(1, 15)
+    ]
+    print
+
+    for book in all_books:
+        if len(book['description']) > 100:
+            book['truncated_description'] = book['description'][:100] + '...'
+        else:
+            book['truncated_description'] =book['description']
+    
+    page = request.args.get('page', 1, type=int)
+    per_page = 5
+    start = (page - 1) * per_page
+    end = start + per_page
+    
+    paginated_items = all_books[start:end]
+    has_next_page = end < len(all_books)
+
+    return jsonify({
+        'items': paginated_items,
+        'has_next_page': has_next_page
+    })
+
+
+@app.route('/api/recommendations/movies')
+def api_movies():
+    all_movies = [
+        {'id': 'm1', 'title': 'Inception', 'year': '2010', 'description': 'A mind-bending thriller...'},
+        # ... add at least 5 or 6 more movies to test pagination ...
+    ]
+    
+    page = request.args.get('page', 1, type=int)
+    per_page = 3 # Show 3 movies at a time
+    start = (page - 1) * per_page
+    end = start + per_page
+
+    paginated_items = all_movies[start:end]
+    has_next_page = end < len(all_movies)
+
+    return jsonify({
+        'items': paginated_items,
+        'has_next_page': has_next_page
+    })
+
+@app.route('/api/recommendations/songs')
+def api_songs():
+    # Your logic to get song recommendations
+    data = [] # Example of an empty list
+
+    page = request.args.get('page', 1, type=int)
+
+    return jsonify({'songs': data})
+
+@app.route('/api/recommendations/news')
+def api_news():
+    # Your logic to get news recommendations
+    data = [
+        {'headline': 'Global Tech Summit Focuses on AI Ethics', 'source': 'Tech Chronicle'}
+    ]
+
+    page = request.args.get('page', 1, type=int)
+
+    return jsonify({'news': data})
+
+@app.route('/api/recommendation/complete/<recommendation_id>', methods=['POST'])
+def api_mark_recommendation_action(recommendation_id):
+    # This route will handle marking a recommendation as done or not done
+    # For now, we will just return a success message
+    # In a real app, you would update the database here
+    print(f"Marking recommendation {recommendation_id} as done.")
+    return jsonify({
+        'status': 'success',
+        'message': f'Recommendation {recommendation_id} marked as done.'
+    })
+
+@app.route('/api/recommendation/note_interaction/<recommendation_id>', methods=['POST'])
+def api_recommendation_note_interaction(recommendation_id):
+    # This route will handle adding a note for a recommendation
+    print(f"Adding note for recommendation {recommendation_id}.")
+    confirm_uesr_interaction = api_calls.mark_user_interaction_with_recommendation(
+        uid=session.get('user_data', {}).get('user_id'),
+        rec_id=recommendation_id
     )
+    
+    return jsonify({
+        'status': 'success',
+        'message': f'Note added for recommendation {recommendation_id}.'
+    })
 
 @app.route('/logout')
 def logout():

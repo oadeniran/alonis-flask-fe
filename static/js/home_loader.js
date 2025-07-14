@@ -4,20 +4,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Function to fetch and display recommendations ---
     const loadRecommendations = () => {
-        fetch('/api/recommendations')
+        fetch('/api/recommendations/alonis')
             .then(response => response.ok ? response.json() : Promise.reject('Failed'))
             .then(data => {
                 recommendationsContainer.innerHTML = ''; // Clear skeleton loaders
-                if (data.recommendations) {
-                    console.log('Recommendations loaded:', data.recommendations);
-                    data.recommendations.forEach(rec => {
+                if (data.items && data.items.length > 0) {
+                    console.log('Recommendations loaded:', data.items);
+                    data.items.forEach(rec => {
                         const card = document.createElement('div');
                         card.className = 'recommendation-card';
-                        card.innerHTML = `<h4>${rec.title}</h4><p>${rec.details}</p>`;
+                        card.innerHTML = `<h4>${rec.title}</h4><p>${rec.description}</p>`;
                         recommendationsContainer.appendChild(card);
                     });
 
-                    if (data.recommendations.length >= 5) {
+                    if (data.has_next_page) {
                         const viewMoreCard = document.createElement('a');
                         viewMoreCard.href = "recommendations";
                         viewMoreCard.className = 'view-more-card';
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         recommendationsContainer.appendChild(viewMoreCard);
                     }
 
-                    if (data.recommendations && data.recommendations.length <= 0) {
+                    if (data.items && data.items.length <= 0) {
                         // If the list is empty, show the prompt
                         recommendationsContainer.innerHTML = `
                             <div class="empty-state-prompt">

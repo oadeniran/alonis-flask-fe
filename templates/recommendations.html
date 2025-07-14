@@ -15,73 +15,61 @@
 
         <section class="rec-category">
             <h2>Alonis Recommendations</h2>
-            <div class="items-grid">
-                {% for rec in alonis_recommendation_data %}
-                <div class="item-card">
-                    <h3>{{ rec.title }}</h3>
-                    <p>{{ rec.details }}</p>
-                </div>
-                {% else %}
-                <div class="empty-state-prompt">
-                    <i class="fas fa-brain"></i>
-                    <h4>My Personal Suggestions For You</h4>
-                    <p>My own recommendations will appear here. The more we interact, the better they'll get!</p>
-                </div>
-                {% endfor %}
+            <div class="items-grid" id="alonis-grid">
+                <div class="skeleton-item-card"></div>
             </div>
+            <div class="load-more-container" id="alonis-loader"></div>
         </section>
+        
         <section class="rec-category">
             <h2>Movies You Can Watch</h2>
-            <div class="items-grid">
-                {% for movie in movies %}
-                <div class="item-card">
-                    <h3>{{ movie.title }} ({{ movie.year }})</h3>
-                    <p>{{ movie.description }}</p>
-                </div>
-                {% else %}
-                <div class="empty-state-prompt">
-                    <i class="fas fa-film"></i>
-                    <h4>No Movie Suggestions Yet</h4>
-                    <p>The more you interact with Alonis, the better I can tailor movie night for you!</p>
-                </div>
-                {% endfor %}
+            <div class="items-grid" id="movies-grid">
+                <div class="skeleton-item-card"></div>
+                <div class="skeleton-item-card"></div>
             </div>
+            <div class="load-more-container" id="movies-loader"></div>
         </section>
 
         <section class="rec-category">
             <h2>Songs You Can Listen To</h2>
-            <div class="items-grid">
-                {% for song in songs %}
-                <div class="item-card">
-                    <h3>{{ song.title }}</h3>
-                    <p>by {{ song.artist }}</p>
-                </div>
-                {% else %}
-                <div class="empty-state-prompt">
-                    <i class="fas fa-music"></i>
-                    <h4>Looking for a New Soundtrack?</h4>
-                    <p>Your song recommendations will appear here as I get to know your tastes.</p>
-                </div>
-                {% endfor %}
+            <div class="items-grid" id="songs-grid">
+                <div class="skeleton-item-card"></div>
+                <div class="skeleton-item-card"></div>
             </div>
+            <div class="load-more-container" id="songs-loader"></div>
+        </section>
+
+         <section class="rec-category">
+            <h2>Books to Read</h2>
+            <div class="items-grid" id="books-grid">
+                <div class="skeleton-item-card"></div>
+                <div class="skeleton-item-card"></div>
+            </div>
+            <div class="load-more-container" id="books-loader"></div>
         </section>
 
         <section class="rec-category">
             <h2>News That Might Be Relevant</h2>
-            <div class="items-grid">
-                {% for article in news %}
-                <div class="item-card">
-                    <h3>{{ article.headline }}</h3>
-                    <p>Source: {{ article.source }}</p>
-                </div>
-                {% else %}
-                <div class="empty-state-prompt">
-                    <i class="fas fa-newspaper"></i>
-                    <h4>No Relevant News Right Now</h4>
-                    <p>I'm always scanning for articles that match your interests. Check back soon!</p>
-                </div>
-                {% endfor %}
+            <div class="items-grid" id="news-grid">
+                <div class="skeleton-item-card"></div>
             </div>
+            <div class="load-more-container" id="news-loader"></div>
         </section>
     </div>
+
+    <div id="view-details-modal" class="modal-overlay">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2 id="view-modal-title"></h2>
+                <button id="close-view-modal-btn" class="close-btn">&times;</button>
+            </header>
+            <div class="view-modal-body">
+                <p id="view-modal-details"></p>
+            </div>
+            <footer class="modal-footer" id="view-modal-footer">
+                </footer>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/recommendations_loader.js') }}"></script>
 {% endblock %}
