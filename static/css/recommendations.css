@@ -304,6 +304,49 @@ body {
 }
 .view-modal-body { padding-top: 15px; max-height: 70vh; overflow-y: auto; }
 .view-modal-body p { color: #4B5563; line-height: 1.7; white-space: pre-wrap; }
+
+.card-context {
+    font-size: 14px;
+    color: #A0AEC0; /* A lighter, more subtle color */
+    margin-top: 10px;
+}
+
+.tags-container {
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag-item {
+    background-color: #EDF2F7;
+    color: #4A5568;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.modal-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #F3F4F6;
+}
+.modal-section h4 {
+    margin: 0 0 10px 0;
+    color: #111827;
+}
+.modal-section pre {
+    background-color: #F9FAFB;
+    padding: 15px;
+    border-radius: 8px;
+    white-space: pre-wrap; /* Allows the text to wrap */
+    word-wrap: break-word;
+    font-size: 14px;
+    color: #4B5563;
+}
+
+
 .modal-footer {
     padding: 20px 40px 10px;
     margin-top: 10px;

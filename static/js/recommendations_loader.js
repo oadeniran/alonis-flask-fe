@@ -84,7 +84,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let title = item.title || item.headline;
         let details = item.truncated_description || item.description || `by ${item.artist}` || `Source: ${item.source}` || '';
-        if (category === 'movies' && item.year) title += ` (${item.year})`;
+        let context = item.truncated_context || item.context || '';
+
+        if (category === 'movies' && item.release_date) title += ` (${item.release_date})`;
+        if (category === 'books' && item.publication_date) title += ` (${item.publication_date})`;
+
 
         // --- NEW: Generic Metadata Logic ---
         let metaHTML = '';
@@ -96,6 +100,16 @@ document.addEventListener('DOMContentLoaded', () => {
             metaHTML = `<span class="card-meta">Genre: ${item.genre}</span>`;
         } else if (category === 'news' && item.source) {
             metaHTML = `<span class="card-meta">Source: ${item.source}</span>`;
+        }
+
+        // --- New Tags Logic ---
+        let tagsHTML = '';
+        if (item.tags && item.tags.length > 0) {
+            tagsHTML += '<div class="tags-container">';
+            item.tags.slice(0, 3).forEach(tag => {
+                tagsHTML += `<span class="tag-item">${tag}</span>`;
+            });
+            tagsHTML += '</div>';
         }
 
         let actionIndicatorHTML = '', actionButtonHTML = '';
@@ -117,14 +131,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         card.innerHTML = `
-            <div class="menu-container">
+            ${item.action? `<div class="menu-container">
                 <button class="menu-btn"><i class="fas fa-ellipsis-v"></i></button>
                 <div class="dropdown-menu">${actionButtonHTML}</div>
-            </div>
+            </div>` : ''}
             ${actionIndicatorHTML}
             <h3>${title}</h3>
             ${metaHTML}
             <p>${details}</p>
+            ${context ? `<p class="card-context">${context}</p>` : ''}
+            ${tagsHTML}
             <div class="card-footer">${viewMoreBtnHTML}</div>
         `;
         return card;
@@ -238,6 +254,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 actionBtn.dataset.itemId = itemData.id;
                 modalFooter.appendChild(actionBtn);
             }
+            // --- Populate New Modal Sections ---
+            const contextContainer = document.getElementById('view-modal-context');
+            contextContainer.innerHTML = itemData.context ? `<h4>Context</h4><p>${itemData.context}</p>` : '';
+
+            const tagsContainer = document.getElementById('view-modal-tags');
+            if (itemData.tags && itemData.tags.length > 0) {
+                let tagsContent = '<h4>Tags</h4><div class="tags-container">';
+                itemData.tags.forEach(tag => { tagsContent += `<span class="tag-item">${tag}</span>`; });
+                tagsContent += '</div>';
+                tagsContainer.innerHTML = tagsContent;
+            } else {
+                tagsContainer.innerHTML = '';
+            }
+
+            const extraContainer = document.getElementById('view-modal-extra');
+            extraContainer.innerHTML = itemData.extra_data_string ? `<h4>Extra Data</h4><pre>${itemData.extra_data_string}</pre>` : '';
+
+
             viewModal.style.display = 'flex';
 
             // Log the interaction with the item if is_red_by_user exists and is false

@@ -615,7 +615,8 @@ def api_alonis_recommendations():
                 item['truncated_description'] = item['description'][:100] + '...'
             else:
                 item['truncated_description'] = item['description']
-
+        
+        random.shuffle(rec_items)  # Shuffle the recommendations for variety
         return jsonify({
             'items': rec_items,
             'has_next_page': api_data.get('has_next_page', False)
@@ -628,76 +629,140 @@ def api_alonis_recommendations():
 # 1. ADD a new API route for books
 @app.route('/api/recommendations/books')
 def api_books():
-    # In a real app, you would get this data from a database
-    all_books = [
-        {'id': f'b{i}', 
-        'title': f'The Art of Thinking Clearly #{i}',
-        'description': 'This book provides insights into cognitive biases and how they affect our decision-making. It offers practical advice on how to avoid these pitfalls in everyday life.'*random.randint(87, 120),
-        'author': 'Rolf Dobelli',
-        'action' : {'name': 'Watch', 'status': random.choice([True, False])}} 
-        for i in range(1, 15)
-    ]
-    print
-
-    for book in all_books:
-        if len(book['description']) > 100:
-            book['truncated_description'] = book['description'][:100] + '...'
-        else:
-            book['truncated_description'] =book['description']
-    
+    # all_books = [
+    #     {'id': f'b{i}', 
+    #     'title': f'The Art of Thinking Clearly #{i}',
+    #     'description': 'This book provides insights into cognitive biases and how they affect our decision-making. It offers practical advice on how to avoid these pitfalls in everyday life.'*random.randint(87, 120),
+    #     'author': 'Rolf Dobelli',
+    #     'action' : {'name': 'Watch', 'status': random.choice([True, False])}} 
+    #     for i in range(1, 15)
+    # ]
     page = request.args.get('page', 1, type=int)
-    per_page = 5
-    start = (page - 1) * per_page
-    end = start + per_page
-    
-    paginated_items = all_books[start:end]
-    has_next_page = end < len(all_books)
 
-    return jsonify({
-        'items': paginated_items,
-        'has_next_page': has_next_page
-    })
+    try:
+        api_data = api_calls.get_recommendations(
+                uid=session.get('user_data', {}).get('user_id', ''),
+                rec_type='alonis_recommendation_books',
+                page=page
+        )
+        all_books = api_data.get('recommendations', [])
+        
+
+        for book in all_books:
+            if len(book['description']) > 100:
+                book['truncated_description'] = book['description'][:100] + '...'
+            else:
+                book['truncated_description'] =book['description']
+            
+            # Do same for context
+            if len(book.get('context', '')) > 100:
+                book['truncated_context'] = book['context'][:100] + '...'
+            else:
+                book['truncated_context'] = book['context']
+
+        # Shuffle the books to provide a different order each time
+        random.shuffle(all_books)  # Shuffle the recommendations for variety
+
+        return jsonify({
+            'items': all_books,
+            'has_next_page': api_data.get('has_next_page', False)
+        })
+    except Exception as e:
+        print(f"API Error in books recommendations: {e}")
+        return jsonify({'error': 'Could not load book recommendations.'}), 500
 
 
 @app.route('/api/recommendations/movies')
 def api_movies():
-    all_movies = [
-        {'id': 'm1', 'title': 'Inception', 'year': '2010', 'description': 'A mind-bending thriller...'},
-        # ... add at least 5 or 6 more movies to test pagination ...
-    ]
+    # all_movies = [
+    #     {'id': 'm1', 'title': 'Inception', 'year': '2010', 'description': 'A mind-bending thriller...'},
+    #     # ... add at least 5 or 6 more movies to test pagination ...
+    # ]
     
     page = request.args.get('page', 1, type=int)
-    per_page = 3 # Show 3 movies at a time
-    start = (page - 1) * per_page
-    end = start + per_page
+    try:
+        api_data = api_calls.get_recommendations(
+            uid=session.get('user_data', {}).get('user_id', ''),
+            rec_type='alonis_recommendation_movies',
+            page=page
+        )
+        all_movies = api_data.get('recommendations', [])
+        
+        for movie in all_movies:
+            if len(movie['description']) > 100:
+                movie['truncated_description'] = movie['description'][:100] + '...'
+            else:
+                movie['truncated_description'] = movie['description']
+            
+            # Do same for context
+            if len(movie.get('context', '')) > 100:
+                movie['truncated_context'] = movie['context'][:100] + '...'
+            else:
+                movie['truncated_context'] = movie['context']
+        
+        # Shuffle the movies to provide a different order each time
+        random.shuffle(all_movies)  # Shuffle the recommendations for variety
 
-    paginated_items = all_movies[start:end]
-    has_next_page = end < len(all_movies)
-
-    return jsonify({
-        'items': paginated_items,
-        'has_next_page': has_next_page
-    })
+        return jsonify({
+            'items': all_movies,
+            'has_next_page': api_data.get('has_next_page', False)
+        })
+    except Exception as e:
+        print(f"API Error in movies recommendations: {e}")
+        return jsonify({'error': 'Could not load movie recommendations.'}), 500
 
 @app.route('/api/recommendations/songs')
 def api_songs():
     # Your logic to get song recommendations
-    data = [] # Example of an empty list
-
     page = request.args.get('page', 1, type=int)
 
-    return jsonify({'songs': data})
+    try:
+        api_data = api_calls.get_recommendations(
+            uid=session.get('user_data', {}).get('user_id', ''),
+            rec_type='alonis_recommendation_songs',
+            page=page
+        )
+        all_songs = api_data.get('recommendations', [])
+        
+        for song in all_songs:
+            if len(song['description']) > 100:
+                song['truncated_description'] = song['description'][:100] + '...'
+            else:
+                song['truncated_description'] = song['description']
+
+        return jsonify({
+            'items': all_songs,
+            'has_next_page': api_data.get('has_next_page', False)
+        })
+    except Exception as e:
+        print(f"API Error in songs recommendations: {e}")
+        return jsonify({'error': 'Could not load song recommendations.'}), 500
 
 @app.route('/api/recommendations/news')
 def api_news():
     # Your logic to get news recommendations
-    data = [
-        {'headline': 'Global Tech Summit Focuses on AI Ethics', 'source': 'Tech Chronicle'}
-    ]
-
     page = request.args.get('page', 1, type=int)
+    try:
+        api_data = api_calls.get_recommendations(
+            uid=session.get('user_data', {}).get('user_id', ''),
+            rec_type='alonis_recommendation_news',
+            page=page
+        )
+        all_news = api_data.get('recommendations', [])
+        
+        for news in all_news:
+            if len(news['description']) > 100:
+                news['truncated_description'] = news['description'][:100] + '...'
+            else:
+                news['truncated_description'] = news['description']
 
-    return jsonify({'news': data})
+        return jsonify({
+            'items': all_news,
+            'has_next_page': api_data.get('has_next_page', False)
+        })
+    except Exception as e:
+        print(f"API Error in news recommendations: {e}")
+        return jsonify({'error': 'Could not load movie recommendations.'}), 500
 
 @app.route('/api/recommendation/complete/<recommendation_id>', methods=['POST'])
 def api_mark_recommendation_action(recommendation_id):
@@ -714,7 +779,7 @@ def api_mark_recommendation_action(recommendation_id):
 def api_recommendation_note_interaction(recommendation_id):
     # This route will handle adding a note for a recommendation
     print(f"Adding note for recommendation {recommendation_id}.")
-    confirm_uesr_interaction = api_calls.mark_user_interaction_with_recommendation(
+    api_calls.mark_user_interaction_with_recommendation(
         uid=session.get('user_data', {}).get('user_id'),
         rec_id=recommendation_id
     )

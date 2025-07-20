@@ -64,6 +64,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     quoteContainer.appendChild(blockquote);
                     quoteContainer.appendChild(author);
                 }
+                else {
+                    quoteContainer.innerHTML = '<p>No quote available.</p>';
+                }
+
+                console.log('Quote loaded:', data.quote);
             })
             .catch(error => {
                 console.error('Error fetching quote:', error);
@@ -72,6 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Run both functions when the page loads ---
-    loadRecommendations();
     loadQuote();
+    loadRecommendations();
 });
