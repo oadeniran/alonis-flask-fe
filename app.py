@@ -17,6 +17,21 @@ app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 app.config['SESSION_FILE_THRESHOLD'] = 500  # max number of session files before it starts cleaning
 
+def clean_session_if_login_expired():
+    if 'login_time' in session:
+        login_time = datetime.fromisoformat(session['login_time'])
+        if datetime.now() - login_time > timedelta(hours=5) and session['last_activity'] < (datetime.now() - timedelta(minutes=30)):
+            session.clear()  # Clear the session if login expired
+            print("Session cleared due to inactivity.")
+            return True
+        else:
+            session['last_activity'] = datetime.now()
+            session.modified = True  # Mark the session as modified
+            return False
+    else:
+        session.clear()  # Clear the session if no login time is found
+        return True
+
 @app.route('/')
 def home():
     if 'user_data' in session:
@@ -119,6 +134,7 @@ def login():
             "user_id": response.get('uid'),
             'is_login_flow': True  # flag to indicate successful login
         }
+        session['login_time'] = datetime.now().isoformat()  # Store login time in ISO format
         session.modified = True  # Mark the session as modified
         
         return redirect(url_for('home_page')) 
@@ -129,6 +145,8 @@ def login():
     
 @app.route('/api/quote')
 def api_quote():    
+    if clean_session_if_login_expired():
+        return redirect(url_for('login'))
     try:
         # Fetch the quote of the day
         if 'quote_of_day' not in session:
@@ -146,10 +164,23 @@ def api_quote():
     except Exception as e:
         print(f"API Error in home_data: {e}")
         return jsonify({'error': 'Could not load data.'}), 500
+    
+@app.route('/api/story')
+def api_story():
+    if clean_session_if_login_expired():
+        return redirect(url_for('login'))
+    try:
+        daily_story = api_calls.get_daily_story(
+            session.get('user_data', {}).get('user_id', '')
+        )
+        story_text = daily_story.get('story', '')
+        return jsonify({'story': story_text})
+    except Exception as e:
+        return jsonify({'error': 'Could not load story.'}), 500
 
 @app.route('/home')
 def home_page():
-    if 'user_data' not in session:
+    if clean_session_if_login_expired():
         return redirect(url_for('login'))
 
     username = session['user_data']['username']
@@ -168,12 +199,16 @@ def home_page():
 
     # Time-based greeting
     current_hour = datetime.now().hour
-    if 5 <= current_hour < 12:
+    if 0 <= current_hour <= 5:
+        time_greetings = [ "Night owl mode", "Midnight Vibes", "Late night thoughts",]
+    elif 5 <= current_hour < 12:
         time_greetings = ["Good morning", "Morning sunshine", "Rise and shine", "Top of the morning", "A fresh start", "Early bird!", "New day, new ideas", "Let's make today count", "Wakey wakey", "Hello, morning star"]
     elif 12 <= current_hour < 17:
         time_greetings = ["Good afternoon", "Hope your day's going well", "Midday energy!", "Afternoon vibes", "You're halfway through!", "Sunny side up", "Keep going strong", "How’s the day so far?", "Let’s keep it moving", "Happy afternoon!"]
+    elif 17 <= current_hour < 19:
+        time_greetings = ["Good evening", "Evening glow", "Time to relax", "Evening calm", "How was your day?", "Evening reflections", "Wind down time", "Hello, evening star", "Evening vibes", "Unwind and relax"]
     else:
-        time_greetings = ["Good evening", "Evening breeze", "Time to wind down", "Night mode: on", "Evening vibes", "How was your day?", "Relax and recharge", "Hello, night owl", "Dusk is here", "Unwind time"]
+        time_greetings = ["Night mode: on", "How was your day?", "Time to reflect", "Nighttime thoughts", "Rest well", "Good night vibes", "Evening peace", "Late night musings", "Sleepy time soon"]
 
     greeting = random.choice(time_greetings)
 
@@ -205,9 +240,9 @@ def home_page():
 
 @app.route('/assessment/<assessment_type>', methods=['GET', 'POST'])
 def assessment_page(assessment_type):
-    if 'user_data' not in session:
-        # Means User is not logged in, redirect to login
+    if clean_session_if_login_expired():
         return redirect(url_for('login'))
+    
     # This part handles the background request from JavaScript
     if request.method == 'POST':
         if 'assessment' not in session:
@@ -338,8 +373,7 @@ def assessment_page(assessment_type):
 @app.route('/generate_report/<assessment_type>/<session_id>')
 def generate_report(assessment_type, session_id): 
 
-    if 'user_data' not in session:
-        # Means User is not logged in, redirect to login
+    if clean_session_if_login_expired():
         return redirect(url_for('login'))
     
     # --- API CALL ---
@@ -360,6 +394,8 @@ def generate_report(assessment_type, session_id):
 
 @app.route('/reset_assessment/<assessment_type>')
 def reset_assessment(assessment_type):
+    if clean_session_if_login_expired():
+        return redirect(url_for('login'))
     # Clear the old assessment from the session
     if 'assessment' in session:
         session.pop('assessment')
@@ -369,6 +405,9 @@ def reset_assessment(assessment_type):
 
 @app.route('/start_assessment/<assessment_type>')
 def start_assessment(assessment_type):
+    if clean_session_if_login_expired():
+        return redirect(url_for('login'))
+    
     # Clear any existing assessment from the session
     if 'assessment' in session:
         session.pop('assessment')
@@ -381,8 +420,7 @@ def start_assessment(assessment_type):
 @app.route('/chat', methods=['GET', 'POST'])
 def chat_page():
 
-    if 'user_data' not in session:
-        # Means User is not logged in, redirect to login
+    if clean_session_if_login_expired():
         return redirect(url_for('login'))
 
     # Handle POST request (when user sends a message)
@@ -412,6 +450,9 @@ def chat_page():
 
 @app.route('/new_chat')
 def new_chat():
+    if clean_session_if_login_expired():
+        return redirect(url_for('login'))
+    
     # Clear only the general chat history from the session
     if 'talk_session' in session:
         session.pop('talk_session')
@@ -444,8 +485,7 @@ def api_init_chat():
 
 @app.route('/notes', methods=['GET', 'POST'])
 def notes_page():
-    if 'user_data' not in session:
-        # Means User is not logged in, redirect to login
+    if clean_session_if_login_expired():
         return redirect(url_for('login'))
     
     # Initialize notes in session if not present
@@ -592,7 +632,9 @@ def delete_note(note_id):
 
 @app.route('/recommendations')
 def recommendations_page():
-    # This route now loads instantly, passing no data.
+    if clean_session_if_login_expired():
+        return redirect(url_for('login'))
+    # This route loads instantly, passing no data.
     # JavaScript will fetch the data from the new API routes.
     return render_template('recommendations.html')
 
@@ -629,14 +671,7 @@ def api_alonis_recommendations():
 # 1. ADD a new API route for books
 @app.route('/api/recommendations/books')
 def api_books():
-    # all_books = [
-    #     {'id': f'b{i}', 
-    #     'title': f'The Art of Thinking Clearly #{i}',
-    #     'description': 'This book provides insights into cognitive biases and how they affect our decision-making. It offers practical advice on how to avoid these pitfalls in everyday life.'*random.randint(87, 120),
-    #     'author': 'Rolf Dobelli',
-    #     'action' : {'name': 'Watch', 'status': random.choice([True, False])}} 
-    #     for i in range(1, 15)
-    # ]
+
     page = request.args.get('page', 1, type=int)
 
     try:
@@ -674,10 +709,6 @@ def api_books():
 
 @app.route('/api/recommendations/movies')
 def api_movies():
-    # all_movies = [
-    #     {'id': 'm1', 'title': 'Inception', 'year': '2010', 'description': 'A mind-bending thriller...'},
-    #     # ... add at least 5 or 6 more movies to test pagination ...
-    # ]
     
     page = request.args.get('page', 1, type=int)
     try:
@@ -767,13 +798,19 @@ def api_news():
 @app.route('/api/recommendation/complete/<recommendation_id>', methods=['POST'])
 def api_mark_recommendation_action(recommendation_id):
     # This route will handle marking a recommendation as done or not done
-    # For now, we will just return a success message
-    # In a real app, you would update the database here
     print(f"Marking recommendation {recommendation_id} as done.")
-    return jsonify({
-        'status': 'success',
-        'message': f'Recommendation {recommendation_id} marked as done.'
-    })
+    try:
+        api_calls.mark_recommendation_as_completed(
+            uid=session.get('user_data', {}).get('user_id'),
+            rec_id=recommendation_id
+        )
+        return jsonify({
+            'status': 'success',
+            'message': f'Recommendation {recommendation_id} marked as done.'
+        })
+    except Exception as e:
+        print(f"API Error in marking recommendation: {e}")
+        return jsonify({'error': 'Could not mark recommendation as done.'}), 500
 
 @app.route('/api/recommendation/note_interaction/<recommendation_id>', methods=['POST'])
 def api_recommendation_note_interaction(recommendation_id):
@@ -797,8 +834,8 @@ def logout():
 
 @app.route('/api/profile_history')
 def api_profile_history():
-    if 'user_data' not in session:
-        return jsonify({'error': 'User not logged in'}), 401
+    if clean_session_if_login_expired():
+        return redirect(url_for('login'))
     
     try:
         user_sessions_history = api_calls.get_user_sessions(
@@ -818,7 +855,7 @@ def api_profile_history():
 @app.route('/profile', methods=['GET', 'POST'])
 def profile_page():
     # If user is not logged in, redirect to login
-    if 'user_data' not in session:
+    if clean_session_if_login_expired():
         return redirect(url_for('login'))
 
     if request.method == 'POST':
@@ -857,8 +894,7 @@ def profile_page():
 @app.route('/report/<session_id>')
 def report_page(session_id):
 
-    if 'user_data' not in session:
-        # Means User is not logged in, redirect to login
+    if clean_session_if_login_expired():
         return redirect(url_for('login'))
     
 
@@ -882,8 +918,7 @@ def report_page(session_id):
 @app.route('/view_chat/<session_id>')
 def view_chat_page(session_id):
 
-    if 'user_data' not in session:
-        # Means User is not logged in, redirect to login
+    if clean_session_if_login_expired():
         return redirect(url_for('login'))
     
     is_talk_session = request.args.get('is_talk_session', 'false').lower() in {

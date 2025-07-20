@@ -1,54 +1,40 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const recommendationsContainer = document.getElementById('recommendations-container');
     const quoteContainer = document.getElementById('quote-container');
+    const storyContainer = document.getElementById('story-container');
+    const storyLoader = document.getElementById('story-loader');
+    const storyContentArea = document.getElementById('story-content-area');
 
-    // --- Function to fetch and display recommendations ---
-    const loadRecommendations = () => {
-        fetch('/api/recommendations/alonis')
+    // --- Function to fetch and display the story ---
+    const loadStory = () => {
+        fetch('/api/story')
             .then(response => response.ok ? response.json() : Promise.reject('Failed'))
             .then(data => {
-                recommendationsContainer.innerHTML = ''; // Clear skeleton loaders
-                if (data.items && data.items.length > 0) {
-                    console.log('Recommendations loaded:', data.items);
-                    data.items.forEach(rec => {
-                        const card = document.createElement('div');
-                        card.className = 'recommendation-card';
-                        card.innerHTML = `<h4>${rec.title}</h4><p>${rec.description}</p>`;
-                        recommendationsContainer.appendChild(card);
-                    });
-
-                    if (data.has_next_page) {
-                        const viewMoreCard = document.createElement('a');
-                        viewMoreCard.href = "recommendations";
-                        viewMoreCard.className = 'view-more-card';
-                        viewMoreCard.innerHTML = `<span>View More</span><i class="fas fa-arrow-right"></i>`;
-                        recommendationsContainer.appendChild(viewMoreCard);
-                    }
-
-                    if (data.items && data.items.length <= 0) {
-                        // If the list is empty, show the prompt
-                        recommendationsContainer.innerHTML = `
-                            <div class="empty-state-prompt">
-                                <i class="fas fa-magic"></i>
-                                <h4>Your Recommendations will appear here</h4>
-                                <p>
-                                    The more you interact with me, the better I'll get at tailoring recommendations for you.
-                                    You can start by jotting down a quick note — maybe a random thought or your goals for the next 3 months.
-                                    Want deeper insights? Take a quick personality test or explore the MindLens feature.
-                                    Feeling spontaneous? Drop into the Talk Session chat and share whatever's on your mind.
-                                    Check back anytime — the more you share, the more I can support you.
-                                </p>
-                            </div>
-                        `;
-                    }
+                if (data.story && data.story.trim() !== '') {
+                    storyLoader.style.display = 'none';
+                    storyContentArea.textContent = data.story;
+                    storyContentArea.style.display = 'block';
+                } else {
+                    // If the story is empty, show the personalized prompt
+                    storyContainer.innerHTML = `
+                        <div class="empty-state-prompt">
+                            <i class="fas fa-book-open"></i>
+                            <h4>Reflective Stories show here</h4>
+                            <p>
+                                This is where I share meaningful stories you can relate to based on our conversations, you traits, goals and interactions.
+                                <br/><br/>
+                                Take an asessment, start a conversatiion or add notes and goals to start seeing stories here.
+                            </p>
+                        </div>
+                    `;
                 }
+
             })
             .catch(error => {
-                console.error('Error fetching recommendations:', error);
-                recommendationsContainer.innerHTML = '<p>Could not load recommendations.</p>';
+                console.error('Error fetching story:', error);
+                storyContainer.innerHTML = '<p>Could not load your story.</p>';
             });
     };
-
+    
     // --- Function to fetch and display the quote ---
     const loadQuote = () => {
         fetch('/api/quote')
@@ -78,5 +64,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Run both functions when the page loads ---
     loadQuote();
-    loadRecommendations();
+    loadStory();
 });

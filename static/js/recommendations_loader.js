@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = viewMoreButton.closest('.item-card');
             const itemData = JSON.parse(card.dataset.itemData); // Get full data
 
-            document.getElementById('view-modal-title').textContent = itemData.title + (itemData.year ? ` (${itemData.year})` : '');
+            document.getElementById('view-modal-title').textContent = itemData.title + (itemData.release_date ? ` (${itemData.release_date})` : '') + (itemData.publication_date ? ` (${itemData.publication_date})` : '');
             document.getElementById('view-modal-details').textContent = itemData.description || itemData.details;
             
             const modalFooter = document.getElementById('view-modal-footer');

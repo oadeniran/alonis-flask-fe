@@ -37,6 +37,12 @@
                         <span>Personality Test</span>
                     </div>
                 </a>
+                <a href= "{{ url_for('recommendations_page') }}" class="feature-item-link">
+                    <div class="feature-item">
+                        <i class="fas fa-magic"></i>
+                        <span>Recommendations</span>
+                    </div>
+                </a>
                 <a href="{{ url_for('assessment_page', assessment_type='mindlab') }}" class="feature-item-link">
                     <div class="feature-item">
                         <i class="fas fa-brain"></i>
@@ -56,13 +62,15 @@
                 </a>
             </section>
 
-           <section class="recommendations">
-                <h3>Recommendations</h3>
-                <div class="cards-container" id="recommendations-container">
-                    <div class="skeleton-card"></div>
-                    <div class="skeleton-card"></div>
-                    <div class="skeleton-card"></div>
+           <section class="story-section" id="story-container">
+                <h3>Reflective Story</h3>
+                <div class="story-content-loader" id="story-loader">
+                    <div class="skeleton-line"></div>
+                    <div class="skeleton-line"></div>
+                    <div class="skeleton-line short"></div>
                 </div>
+                <div class="story-content" id="story-content-area">
+                    </div>
             </section>
 
 
