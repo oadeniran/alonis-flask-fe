@@ -18,18 +18,36 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 app.config['SESSION_FILE_THRESHOLD'] = 500  # max number of session files before it starts cleaning
 
 def clean_session_if_login_expired():
-    if 'login_time' in session:
-        login_time = datetime.fromisoformat(session['login_time'])
-        if datetime.now() - login_time > timedelta(hours=5) and session['last_activity'] < (datetime.now() - timedelta(minutes=30)):
-            session.clear()  # Clear the session if login expired
+    try:
+        login_time_str = session.get('login_time')
+        last_activity = session.get('last_activity')
+
+        if not login_time_str:
+            session.clear()
+            return True
+
+        # Convert login_time from ISO string
+        if isinstance(login_time_str, str):
+            login_time = datetime.fromisoformat(login_time_str)
+        else:
+            login_time = login_time_str  # Assume already a datetime
+
+        # Convert last_activity if present
+        if isinstance(last_activity, str):
+            last_activity = datetime.fromisoformat(last_activity)
+
+        if datetime.now() - login_time > timedelta(hours=5) and \
+           last_activity and last_activity < (datetime.now() - timedelta(minutes=30)):
+            session.clear()
             print("Session cleared due to inactivity.")
             return True
         else:
-            session['last_activity'] = datetime.now()
-            session.modified = True  # Mark the session as modified
+            session['last_activity'] = datetime.now().isoformat()
+            session.modified = True
             return False
-    else:
-        session.clear()  # Clear the session if no login time is found
+    except Exception as e:
+        print(f"Error during session check: {e}")
+        session.clear()
         return True
 
 @app.route('/')
@@ -88,6 +106,9 @@ def signup():
             'short_bio': short_bio,
             "user_id": response.get('uid')
         }
+        session['login_time'] = datetime.now().isoformat()  # Store login time in ISO format
+        session['last_activity'] = datetime.now().isoformat()  # Store last activity time in ISO format
+        session.modified = True  # Mark the session as modified
 
         # Then redirect to the home page
         return redirect(url_for('home_page'))
@@ -135,6 +156,7 @@ def login():
             'is_login_flow': True  # flag to indicate successful login
         }
         session['login_time'] = datetime.now().isoformat()  # Store login time in ISO format
+        session['last_activity'] = datetime.now().isoformat()  # Store last activity time in ISO format
         session.modified = True  # Mark the session as modified
         
         return redirect(url_for('home_page')) 
