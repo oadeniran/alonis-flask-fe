@@ -188,7 +188,7 @@ main.main-content {
 
 /* --- 6. Mobile Responsiveness --- */
 @media (max-width: 768px) {
-    .dashboard-header, .welcome-banner, .story-section, .quote-section {
+    .dashboard-header, .welcome-banner, .story-section {
         padding-left: 20px;
         padding-right: 20px;
     }
@@ -205,15 +205,12 @@ main.main-content {
     .welcome-text h2 { font-size: 36px; }
 
     .quote-section {
-    padding: 25px 20px; /* Reduce padding for smaller screens */
-    margin: 20px;       /* Use margin to create space from screen edges */
-    border-radius: 12px;
+        padding: 25px 20px; /* Reduce padding for smaller screens */
+        margin: 20px;       /* Use margin to create space from screen edges */
     }
-
     .quote-section blockquote {
-        font-size: 16px; /* Make the quote text slightly smaller */
+        font-size: 16px;    /* Make the quote text slightly smaller */
     }
-
     .quote-section .author {
         text-align: center; /* This is the key: center the author text */
         font-size: 13px;
