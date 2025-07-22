@@ -14,6 +14,34 @@ body {
     color: #111;
 }
 
+body::before,
+body::after {
+    content: '';
+    position: fixed;
+    z-index: -1;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.6;
+}
+
+/* Top-left purple blob */
+body::before {
+    width:1500px;
+    height: 700px;
+    top: -15%;
+    left: -20%;
+    background-color: #C7D2FE; /* Soft indigo/purple */
+}
+
+/* Bottom-right blue blob */
+body::after {
+    width: 1500px;
+    height: 700px;
+    bottom: -20%;
+    right: -20%;
+    background-color: #adcaeb; /* Soft blue */
+}
+
 .dashboard-container {
     display: flex;
     flex-direction: column;
@@ -100,27 +128,80 @@ main.main-content {
     min-height: 0; /* Flexbox fix */
     display: flex;
     flex-direction: column;
+    position: relative;
+    overflow: hidden; 
 }
-.story-section h3 {
+
+.story-block {
+    /* These properties will center the entire block */
+    max-width: 1100px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    
+    /* These ensure it grows correctly within the non-scrolling layout */
+    flex-grow: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.story-content {
+    display: none;
+    flex-grow: 1;
+    overflow-y: auto;
+    background-color:  transparent;
+    border-radius: 50px;
+    border-left: 0;
+    border-right: 0;
+    padding: 40px 35px;   /* Increased horizontal padding */
+    line-height: 1.8;     /* Increased line height for readability */
+    color: #374151;      /* Slightly darker text */
+    
+}
+.story-content h3 {
     font-size: 22px;
     font-weight: 600;
     color: #1F2937;
     margin-bottom: 15px;
     flex-shrink: 0;
 }
-.story-content {
-    display: none;
-    flex-grow: 1;
-    overflow-y: auto; /* The story ITSELF is scrollable if long */
-    background-color: #F9FAFB;
-    border-radius: 12px;
-    padding: 20px 30px;
-    line-height: 1.8;
-    color: #4B5563;
+.story-signature {
+    text-align: right;
+    font-style: italic;
+    color: #6B7280; /* A soft grey */
+    margin-top: 15px;
+}
 
-    text-align: justify; /* Justifies the text for clean edges */
-    border-left: 2px solid #E5E7EB;  /* Adds a left border */
-    border-right: 2px solid #E5E7EB; /* Adds a right border */
+.story-section::before,
+.story-section::after {
+    content: 'A\A L\A O\A N\A I\A S'; /* The \A creates a line break */
+    white-space: pre; /* Renders the line breaks */
+    
+    position: absolute;
+    top: 0; /* Align to the top of the container */
+    bottom: 0; /* Stretch to the bottom */
+    z-index: 0; /* Places it behind the story content */
+
+    /* Flexbox to vertically center the text inside the pseudo-element */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: clamp(3rem, 10vh, 5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    color: rgba(200, 202, 207, 0.7); /* A very light, subtle grey */
+}
+
+.story-section::before {
+    left: 60px;
+    animation: float 12s ease-in-out infinite;
+}
+
+.story-section::after {
+    right: 60px;
+    animation-delay: -6s; /* Starts halfway through the animation cycle */
 }
 
 /* Story Skeleton Loader */
@@ -186,14 +267,33 @@ main.main-content {
 
 @keyframes shimmer { 100% { transform: translateX(100%); } }
 
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
 /* --- 6. Mobile Responsiveness --- */
+@media (max-width: 1400px) {
+    .story-section::before,
+    .story-section::after {
+        display: none;
+    }
+    
+}
 @media (max-width: 768px) {
     .dashboard-header, .welcome-banner, .story-section {
         padding-left: 20px;
         padding-right: 20px;
     }
     .story-section {
-    flex-grow: 0.5;
+    flex-grow: 0.4; /* Allow the story section to take up less space on smaller screens */
     }
     .features-bar {
         margin-left: 20px;
@@ -206,6 +306,16 @@ main.main-content {
     }
     .welcome-text h1 { font-size: 24px; }
     .welcome-text h2 { font-size: 36px; }
+
+    .story-block {
+        max-width: 100%; /* Allow the story block to take full width on smaller screens */
+        padding: 0 20px; /* Add some padding for better spacing */
+        margin: 0; /* Remove auto margins to fit smaller screens */
+
+        flex-grow: 1;
+        flex-basis: 40%; /* Suggest it takes about 40% of the flexible space */
+        min-height: 200px; /* Ensure it has at least some height */
+    }
 
     .quote-section {
         padding: 25px 20px; /* Reduce padding for smaller screens */

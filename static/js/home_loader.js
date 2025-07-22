@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     storyLoader.style.display = 'none';
                     storyContentArea.textContent = data.story;
                     storyContentArea.style.display = 'block';
+
+                    document.querySelector('.story-signature').style.display = 'block';
                 } else {
                     // If the story is empty, show the personalized prompt
                     storyContainer.innerHTML = `
