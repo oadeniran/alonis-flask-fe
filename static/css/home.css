@@ -287,7 +287,7 @@ main.main-content {
     }
     
 }
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
     .dashboard-header, .welcome-banner, .story-section {
         padding-left: 20px;
         padding-right: 20px;
