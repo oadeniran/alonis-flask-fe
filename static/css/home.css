@@ -192,6 +192,9 @@ main.main-content {
         padding-left: 20px;
         padding-right: 20px;
     }
+    .story-section {
+    flex-grow: 0.5;
+    }
     .features-bar {
         margin-left: 20px;
         margin-right: 20px;
