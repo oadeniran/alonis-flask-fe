@@ -17,6 +17,14 @@ def login_user(credentials):
         raise Exception(f"Error logging in: {response.text[:300]}")
     return response.json()
 
+def hackathon_login_user(credentials):
+    url = API_BASE_URL + '/user/hackathon-username-only-auth'
+    response = requests.post(url, json=credentials)
+    print(f"API Response: {response.status_code} - {response.text[:300]}")
+    if response.status_code != 200:
+        raise Exception(f"Error logging in for hackathon: {response.text[:300]}")
+    return response.json()
+
 def generate_session_id():
     url = API_BASE_URL + '/common/generate-session-id'
     response = requests.get(url)

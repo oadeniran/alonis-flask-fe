@@ -17,6 +17,8 @@ app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 app.config['SESSION_FILE_THRESHOLD'] = 500  # max number of session files before it starts cleaning
 
+Session(app)
+
 def clean_session_if_login_expired():
     try:
         login_time_str = session.get('login_time')
@@ -82,7 +84,8 @@ def signup():
             'username': username,
             'password': password,
             'alonis_verbosity': alonis_verbosity_level,
-            'short_bio': short_bio
+            'short_bio': short_bio,
+            'is_login_flow': False  # flag to indicate this is a signup flow
         }
         # Call the API to create the user account
         try:
@@ -164,17 +167,72 @@ def login():
     # For a GET request, just display the login page
     return render_template('login.html')
 
+@app.route('/hackathon-login', methods=['GET', 'POST'])
+def hackathon_login():
+    if 'user_data' in session:
+        return redirect(url_for('home_page'))
+    
+    if request.method == 'POST':
+        username = request.form.get('username')
+        short_bio = request.form.get('description')
+
+        # Quick validation
+        # if not username or ' ' in username or '@' in username:
+        #     return render_template('hackathon_login.html', error="Username cannot be empty, contain spaces, or '@'.")
+        # if len(password) < 8:
+        #     return render_template('hackathon_login.html', error="Password must be at least 8 characters long.")
+
+        # Call the API to log in
+        try:
+            response = api_calls.hackathon_login_user({
+                'username': username,
+                'short_bio': short_bio,
+            })
+            print(response)
+        except Exception as e:
+            # Handle API call failure (e.g., network error, server error)
+            print(f"API call failed: {e}")
+            return render_template('hackathon_login.html', error="Failed to log in. Please try again later.")
+
+        if response.get('error'):
+            # Handle error (e.g., invalid credentials)
+            print(f"Login error: {response['error']}")
+            return render_template('hackathon_login.html', error=response['error'])
+        
+        # If successful, store user data in the session
+        session['user_data'] = {
+            'email': response.get('email'),
+            'username': response.get('username'),
+            'alonis_verbosity': response.get('alonis_verbosity', 50),  # Default to 50 if not provided
+            'short_bio': response.get('short_bio', ''),
+            "user_id": response.get('uid'),
+            'is_login_flow': True if response.get('login_count', 1) > 1 else False  # flag to indicate successful login
+        }
+        session['login_time'] = datetime.now().isoformat()
+        session['last_activity'] = datetime.now().isoformat()  # Store last activity time in ISO format
+        session.modified = True  # Mark the session as modified
+        return redirect(url_for('home_page'))
+    
+    # For a GET request, just display the hackathon login page
+    return render_template('hackathon_login.html')
+
     
 @app.route('/api/quote')
 def api_quote():    
     if clean_session_if_login_expired():
         return redirect(url_for('login'))
+    print(session)
+    if session.get('user_data', {}).get('is_login_flow', False) == False and 'quote_first_try' not in session:
+        print("First try for quote, returning welcome message")
+        session['quote_first_try'] = True  # Set this to True to indicate the quote can now be fetched for just signed up user 
+        session.modified = True  # Mark the session as modified
+        return jsonify({'quote': {'quote': "Welcome Again! I'll give you dialy quotes here that get personalised the more we interact. Refresh this page to get today's quote", "author": "Alonis"}})
     try:
         # Fetch the quote of the day
         if 'quote_of_day' not in session:
             quote_of_the_day = api_calls.get_daily_quotes(
                 session.get('user_data', {}).get('user_id', '')
-            ).get('quote', {'quote': "Stay positive!", "author": "Alonis"})
+            ).get('quote', {'quote': {'quote': "Stay positive!", "author": "Alonis"}})
             session['quote_of_day'] = quote_of_the_day
         else:
             quote_of_the_day = session['quote_of_day']
@@ -191,6 +249,11 @@ def api_quote():
 def api_story():
     if clean_session_if_login_expired():
         return redirect(url_for('login'))
+    if session.get('user_data', {}).get('is_login_flow', False) == False and 'story_first_try' not in session:
+        # Add story_first_try flag to session to  get to api_calls.get_daily_story
+        session['story_first_try'] = True  # Set this to True to indicate the story has been fetched
+        session.modified = True  # Mark the session as modified
+        return jsonify({'story': ""})
     try:
         daily_story = api_calls.get_daily_story(
             session.get('user_data', {}).get('user_id', '')

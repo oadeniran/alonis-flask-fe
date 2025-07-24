@@ -16,6 +16,7 @@
         <div class="header-buttons">
             <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
             <a href="{{ url_for('signup') }}" class="btn btn-primary">Sign Up</a>
+            <a href="{{ url_for('hackathon_login') }}" class="btn btn-secondary">Hackathon Easy Auth</a>
         </div>
     </header>
     <main class="login-wrapper">
@@ -26,6 +27,12 @@
             <strong>N</strong><span>urturing</span>
             <strong>I</strong><span>ntuition</span>
             <strong>S</strong><span>elfhood</span>
+        </div>
+        <div class="hackathon-prompt">
+            <p>
+                <strong>Attention Judges!</strong> For a streamlined demo experience, please use our 
+                <a href="{{ url_for('hackathon_login') }}">simplified login route</a>.
+            </p>
         </div>
         <div class="login-card">
             <h2>Login</h2>

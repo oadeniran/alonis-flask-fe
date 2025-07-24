@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alonis - Hackathon Demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="page-header">
+        <div class="logo">
+            <a href="{{ url_for('home') }}">Alonis</a>
+        </div>
+        <div class="header-buttons">
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
+            <a href="{{ url_for('signup') }}" class="btn btn-primary">Sign Up</a>
+            <a href="{{ url_for('hackathon_login') }}" class="btn btn-secondary">Hackathon Easy Auth</a>
+        </div>
+    </header>
+    
+    <main class="login-wrapper">
+        <div class="login-branding">
+            <strong>A</strong><span>wareness</span>
+            <strong>L</strong><span>ife</span>
+            <strong>O</strong><span>bservation</span>
+            <strong>N</strong><span>urturing</span>
+            <strong>I</strong><span>ntuition</span>
+            <strong>S</strong><span>elfhood</span>
+        </div>
+
+        <div class="login-card">
+            <h2>Hackathon Demo</h2>
+            
+            <form action="{{ url_for('hackathon_login') }}" method="POST">
+                <div class="form-group">
+                    <label for="username" style="text-align: left; font-weight: 600;">Your Name</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your name to begin" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="short_bio" style="text-align: left; font-weight: 600;">Is this your first time? Tell us about yourself!</label>
+                    <textarea id="short_bio" name="short_bio" rows="3" placeholder="(Optional) e.g., I'm interested in personal growth..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-login">Start Demo</button>
+            </form>
+        </div>
+    </main>
+    
+    <style>
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 20px;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            font-size: 16px;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+        }
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4F46E5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+    </style>
+</body>
+</html>
