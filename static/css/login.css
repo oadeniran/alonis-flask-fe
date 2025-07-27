@@ -260,6 +260,12 @@ input#password {
 
 /* --- Mobile Responsiveness --- */
 @media (max-width: 768px) {
+
+    /* ADD THIS RULE to re-enable scrolling on mobile */
+    html, body {
+        overflow: auto;
+        height: auto;
+    }
     /* Make the header part of the normal page flow */
     .page-header {
         position: relative;

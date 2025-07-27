@@ -298,11 +298,19 @@ textarea {
 }
 
 /* --- Mobile Responsiveness --- */
-@media (max-width: 600px) {
+@media (max-width: 992px) {
+    /* On tablets and mobile, stack the form and the prompt */
     .signup-container {
-        padding: 20px;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        padding: 40px 20px;
     }
-    .signup-card {
-        padding: 30px;
+    .hackathon-prompt {
+        text-align: center;
     }
+}
+@media (max-width: 600px) {
+    .page-header { padding: 20px; }
+    .signup-card { padding: 30px; }
 }

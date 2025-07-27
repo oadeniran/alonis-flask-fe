@@ -136,7 +136,11 @@ body { margin: 0; font-family: 'Inter', sans-serif; background-color: #F8F9FA; }
     box-sizing: border-box;
     flex-grow: 1; /* Allows input to take up available space */
 }
-
+.form-group textarea {
+    resize: none; /* Prevents resizing */
+    height: 150px; /* Default height for the textarea */
+    min-height: 100px; /* Minimum height for the textarea */
+}
 
 .form-body {
     flex-grow: 1; /* This is the magic line that pushes the footer down */
