@@ -138,7 +138,7 @@ def get_recommendations(uid, rec_type, page=1):
     return response.json()
 
 def mark_user_interaction_with_recommendation(uid, rec_id):
-    url = API_BASE_URL + f'/user/{uid}/mark-interaction-with-recommendation/{rec_id}/'
+    url = API_BASE_URL + f'/user/{uid}/mark-interaction-with-recommendation/{rec_id}'
     response = requests.post(url)
     print(f"API Response: {response.status_code} - {response.text[:300]}")
     if response.status_code != 200:
@@ -146,7 +146,7 @@ def mark_user_interaction_with_recommendation(uid, rec_id):
     return response.json()
 
 def mark_recommendation_as_completed(uid, rec_id):
-    url = API_BASE_URL + f'/user/{uid}/mark-recommendation-as-completed/{rec_id}/'
+    url = API_BASE_URL + f'/user/{uid}/mark-recommendation-as-completed/{rec_id}'
     response = requests.post(url)
     print(f"API Response: {response.status_code} - {response.text[:300]}")
     if response.status_code != 200:

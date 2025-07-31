@@ -8,9 +8,10 @@ from datetime import datetime, timedelta
 from math import ceil
 import random
 import content_markdowns
+from config import SECRET_KEY
 
 app = Flask(__name__)
-app.secret_key = "random_secret_key"  # Change this to a secure key in production
+app.secret_key = SECRET_KEY
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_FILE_DIR'] = './flask_session'
 app.config['SESSION_PERMANENT'] = True
