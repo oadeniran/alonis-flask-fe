@@ -1,3 +1,5 @@
+Try Alonis - [Url](https://alonis-db5cde379486.herokuapp.com/)
+
 # Alonis - AI Companion Frontend
 
 Alonis is an AI-powered personal companion platform designed to understand and support users through natural conversation and personalized insights. This repository contains the **frontend user interface** built with Flask, serving as the presentation layer for the Alonis ecosystem.
